@@ -49,7 +49,6 @@ window.HorseyAuth = {
         : "";
 
       container.innerHTML = [
-        "<a class='button button-secondary' href='login.html'>登录 / 注册</a>",
         "<span class='user-chip'>",
         avatar,
         "<span>" + this.escapeHtml(user.username || "用户") + "</span>",
