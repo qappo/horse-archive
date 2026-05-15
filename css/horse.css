@@ -1,0 +1,268 @@
+.horse-detail-card {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) 1fr;
+  gap: 28px;
+  padding: 28px;
+}
+
+.horse-detail-media {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-sage-200);
+  min-height: 320px;
+}
+
+.horse-detail-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detail-id {
+  color: var(--color-sage-700);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.horse-detail-body h1 {
+  margin-top: 8px;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.horse-owner-line {
+  margin-top: 10px;
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+.horse-owner-line span {
+  color: var(--color-sage-700);
+  font-weight: 800;
+}
+
+.detail-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.detail-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--color-sage-50);
+}
+
+.detail-label {
+  min-width: 68px;
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.detail-description {
+  margin-top: 24px;
+}
+
+.detail-description p {
+  margin-top: 10px;
+  color: var(--color-muted);
+}
+
+.horse-social-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.horse-like-summary {
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.horse-like-summary strong {
+  color: var(--color-brown);
+}
+
+.dna-panel {
+  position: relative;
+  min-height: 430px;
+  overflow: hidden;
+  border: 1px solid rgba(163, 255, 213, 0.28);
+  border-radius: var(--radius-lg);
+  background: #050a09;
+  box-shadow: 0 24px 80px rgba(5, 10, 9, 0.34);
+}
+
+.dna-panel::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(163, 255, 213, 0.08) 0,
+      rgba(163, 255, 213, 0.08) 1px,
+      transparent 1px,
+      transparent 9px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.42;
+}
+
+.dna-panel canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.dna-terminal {
+  position: relative;
+  z-index: 1;
+  margin: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(163, 255, 213, 0.34);
+  border-radius: 10px;
+  background: rgba(3, 8, 7, 0.86);
+  color: #caffec;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+.dna-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(163, 255, 213, 0.24);
+  background: rgba(163, 255, 213, 0.08);
+}
+
+.dna-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #a3ffd5;
+  opacity: 0.72;
+}
+
+.dna-window-title {
+  margin-left: 8px;
+  color: rgba(202, 255, 236, 0.78);
+  font-size: 0.85rem;
+}
+
+.dna-terminal-body {
+  position: relative;
+  padding: 22px;
+}
+
+.dna-command-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: rgba(202, 255, 236, 0.86);
+  font-size: 0.95rem;
+}
+
+.dna-prompt {
+  color: #a3ffd5;
+  font-weight: 800;
+}
+
+.dna-copy-button {
+  min-height: 38px;
+  margin-left: auto;
+  background: #a3ffd5;
+  color: #050a09;
+}
+
+.dna-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.dna-sidebar {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(163, 255, 213, 0.22);
+  border-radius: 8px;
+  background: rgba(163, 255, 213, 0.06);
+}
+
+.dna-sidebar span {
+  color: rgba(202, 255, 236, 0.54);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+}
+
+.dna-sidebar strong {
+  color: #a3ffd5;
+  font-size: 0.95rem;
+}
+
+.dna-terminal pre {
+  max-height: 300px;
+  margin: 0;
+  padding: 18px;
+  overflow: auto;
+  border: 1px solid rgba(163, 255, 213, 0.22);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.32);
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #caffec;
+  font: 0.95rem/1.7 Consolas, "Courier New", monospace;
+}
+
+.comment-panel {
+  padding: 28px;
+}
+
+.comment-auth-box {
+  margin-top: 18px;
+  color: var(--color-muted);
+}
+
+.comment-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.comment-list {
+  margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+  .horse-detail-card {
+    grid-template-columns: 1fr;
+  }
+
+  .horse-social-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dna-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dna-copy-button {
+    margin-left: 0;
+  }
+}

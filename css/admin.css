@@ -1,0 +1,89 @@
+.admin-shell {
+  width: min(calc(100% - 32px), 1320px);
+}
+
+.admin-head,
+.admin-table-wrap {
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-tab {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--color-brown);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-tab.active {
+  background: var(--color-brown);
+  color: var(--color-white);
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table th {
+  color: var(--color-brown);
+  font-size: 0.9rem;
+}
+
+.admin-table input,
+.admin-table select {
+  min-width: 120px;
+  padding: 8px 10px;
+}
+
+.admin-text-cell {
+  max-width: 360px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.admin-mini-image {
+  width: 54px;
+  height: 54px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.admin-form {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 900px) {
+  .admin-form {
+    grid-template-columns: 1fr;
+  }
+}
