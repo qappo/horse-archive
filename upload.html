@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horse_Archive - 创建新马</title>
+  <link rel="icon" type="image/png" href="assets/rabbit2.png">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/upload.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="button button-secondary" href="index.html">返回图鉴</a>
+      <div class="header-actions" id="header-actions"></div>
+    </header>
+
+    <main class="page">
+      <section class="upload-page-panel">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Upload</p>
+            <h1 class="section-title">创建新马</h1>
+          </div>
+        </div>
+
+        <form class="upload-form" id="horse-upload-form">
+          <label class="field-label" for="horse-upload-name">名称</label>
+          <div class="emoji-picker-anchor" data-emoji-target="horse-upload-name"></div>
+          <input id="horse-upload-name" type="text" placeholder="输入马匹名称" required>
+
+          <label class="field-label" for="horse-upload-image">图片</label>
+          <input id="horse-upload-image" type="file" accept="image/*" required>
+
+          <label class="field-label" for="horse-upload-description">简介</label>
+          <div class="emoji-picker-anchor" data-emoji-target="horse-upload-description"></div>
+          <textarea id="horse-upload-description" rows="4" placeholder="简单介绍这匹马"></textarea>
+
+          <label class="field-label" for="horse-upload-dna">DNA</label>
+          <textarea id="horse-upload-dna" rows="6" placeholder="可以粘贴较长 DNA 数据"></textarea>
+
+          <div class="inline-actions">
+            <button class="button" type="submit">创建马匹</button>
+            <a class="button button-secondary" href="index.html">取消</a>
+          </div>
+        </form>
+        <div class="status-box hidden" id="horse-upload-status"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/emoji-picker.js"></script>
+  <script src="js/upload.js"></script>
+</body>
+</html>

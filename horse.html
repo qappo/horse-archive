@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horse_Archive - 马匹详情</title>
+  <link rel="icon" type="image/png" href="assets/rabbit2.png">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/horse.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="button button-secondary" href="index.html">返回图鉴</a>
+      <div class="header-actions" id="header-actions"></div>
+    </header>
+
+    <main class="page page-horse">
+      <div class="status-box" id="detail-status">正在读取马匹详情...</div>
+
+      <section class="horse-detail-card hidden" id="horse-detail">
+        <div class="horse-detail-media">
+          <img id="horse-image" alt="马匹图片">
+        </div>
+        <div class="horse-detail-body">
+          <div class="horse-detail-head">
+            <p class="detail-id" id="horse-id"></p>
+            <div class="horse-owner-line">
+              <img class="horse-owner-avatar hidden" id="horse-owner-avatar" alt="">
+              <span class="horse-owner-avatar horse-owner-avatar-empty" id="horse-owner-avatar-fallback"></span>
+              <div class="horse-owner-meta">
+                <span>By <strong id="horse-owner"></strong></span>
+                <time id="horse-created-at"></time>
+              </div>
+            </div>
+          </div>
+          <h1 id="horse-name"></h1>
+          <section class="detail-description">
+            <h2>简介</h2>
+            <p id="horse-description"></p>
+          </section>
+          <div class="horse-social-row">
+            <span class="horse-like-summary">点赞数：<strong id="horse-like-count">0</strong></span>
+            <div class="inline-actions">
+              <button class="button" id="horse-like-button" type="button">点赞</button>
+              <button class="button button-secondary" id="horse-favorite-button" type="button">收藏</button>
+              <button class="button button-secondary hidden" id="horse-delete-button" type="button">删除我的马</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dna-panel hidden" id="dna-panel">
+        <canvas id="dna-canvas" aria-hidden="true"></canvas>
+        <div class="dna-terminal">
+          <div class="dna-terminal-bar">
+            <span class="dna-dot"></span>
+            <span class="dna-dot"></span>
+            <span class="dna-dot"></span>
+            <span class="dna-window-title">genome://horse-sequence</span>
+          </div>
+          <div class="dna-terminal-body">
+            <div class="dna-command-row">
+              <span class="dna-prompt">$</span>
+              <span>decode --target <strong id="dna-target-name">horse</strong> --format raw</span>
+              <button class="button dna-copy-button" id="copy-dna-button" type="button">复制 DNA</button>
+            </div>
+            <div class="dna-grid">
+              <aside class="dna-sidebar">
+                <span>STATUS</span>
+                <strong>ONLINE</strong>
+                <span>STREAM</span>
+                <strong>01</strong>
+                <span>LENGTH</span>
+                <strong id="dna-length">0</strong>
+              </aside>
+              <pre id="horse-dna"></pre>
+            </div>
+            <div class="status-box hidden" id="dna-status"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="comment-panel">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Community</p>
+            <h2 class="section-title">评论区</h2>
+          </div>
+        </div>
+
+        <div class="comment-auth-box" id="comment-auth-box">
+          登录后才可以发表评论。
+        </div>
+
+        <form class="comment-form hidden" id="comment-form">
+          <label class="field-label" for="comment-content" id="comment-label">发表评论</label>
+          <div class="emoji-picker-anchor" id="emoji-picker"></div>
+          <textarea id="comment-content" rows="4" placeholder="写下你对这匹马的看法"></textarea>
+          <div class="inline-actions">
+            <button class="button" type="submit">提交评论</button>
+            <button class="button button-secondary hidden" id="cancel-reply-button" type="button">取消回复</button>
+          </div>
+        </form>
+
+        <div class="status-box" id="comment-status">正在读取评论...</div>
+        <div class="comment-list" id="comment-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/horses.js"></script>
+  <script src="js/comments.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/emoji-picker.js"></script>
+  <script src="js/horse.js"></script>
+</body>
+</html>
