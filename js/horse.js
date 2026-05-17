@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const commentLabel = document.getElementById("comment-label");
   const cancelReplyButton = document.getElementById("cancel-reply-button");
   const likeButton = document.getElementById("horse-like-button");
+  const favoriteButton = document.getElementById("horse-favorite-button");
   const deleteHorseButton = document.getElementById("horse-delete-button");
   let currentHorse = null;
   let replyToComment = null;
@@ -17,47 +18,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  function insertAtCursor(textarea, text) {
-    const start = textarea.selectionStart || 0;
-    const end = textarea.selectionEnd || 0;
-    textarea.value = textarea.value.slice(0, start) + text + textarea.value.slice(end);
-    textarea.focus();
-    textarea.selectionStart = textarea.selectionEnd = start + text.length;
-  }
-
   async function renderEmojis() {
-    const bar = document.getElementById("emoji-bar");
-
-    if (!bar) return;
-
-    try {
-      const result = await window.HorseyApi.getEmojis();
-      const emojis = result.emojis || result.data?.emojis || [];
-      bar.innerHTML = "";
-
-      emojis.forEach((emoji) => {
-        const button = document.createElement("button");
-        button.className = "emoji-button";
-        button.type = "button";
-        button.title = emoji.label || emoji.code;
-
-        if (emoji.image_url) {
-          const image = document.createElement("img");
-          image.src = emoji.image_url;
-          image.alt = emoji.label || emoji.code;
-          button.appendChild(image);
-        } else {
-          button.textContent = emoji.value || "";
-        }
-
-        button.addEventListener("click", () => {
-          insertAtCursor(commentInput, emoji.value || ":" + emoji.code + ":");
-        });
-        bar.appendChild(button);
-      });
-    } catch (error) {
-      bar.innerHTML = "";
-    }
+    await window.HorseyEmojiPicker.mount(
+      document.getElementById("emoji-picker"),
+      commentInput,
+      { label: "添加表情" }
+    );
   }
 
   async function renderComments() {
@@ -112,6 +78,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  function updateFavoriteButton() {
+    favoriteButton.classList.toggle("active", Boolean(currentHorse?.favorited_by_me));
+    favoriteButton.textContent = currentHorse?.favorited_by_me ? "取消收藏" : "收藏";
+  }
+
   function startDnaRain() {
     const canvas = document.getElementById("dna-canvas");
     const panel = document.getElementById("dna-panel");
@@ -124,6 +95,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const frameInterval = 5;
     let drops = [];
     let frame = 0;
+
+    function getDnaColor(name, fallback) {
+      const value = window.getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      return value || fallback;
+    }
 
     function resize() {
       canvas.width = panel.clientWidth;
@@ -141,9 +117,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      context.fillStyle = "rgba(5, 10, 9, 0.28)";
+      context.fillStyle = getDnaColor("--dna-rain-bg", "rgba(248, 243, 232, 0.34)");
       context.fillRect(0, 0, canvas.width, canvas.height);
-      context.fillStyle = "rgba(163, 255, 213, 0.55)";
+      context.fillStyle = getDnaColor("--dna-rain", "rgba(94, 117, 86, 0.42)");
       context.font = fontSize + "px Consolas, monospace";
 
       drops.forEach((drop, index) => {
@@ -169,10 +145,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     currentHorse = await window.HorseyHorses.loadHorseById(horseId);
 
-    document.title = "Horsey Web - " + currentHorse.name;
+    document.title = "Horse_Archive - " + currentHorse.name;
     document.getElementById("horse-id").textContent = "#" + (currentHorse.display_code || currentHorse.id || horseId);
     document.getElementById("horse-name").textContent = currentHorse.name || "未命名马匹";
     document.getElementById("horse-owner").textContent = currentHorse.owner || "未知";
+    document.getElementById("horse-created-at").textContent = currentHorse.created_at || "";
     document.getElementById("horse-like-count").textContent = Number(currentHorse.like_count || 0);
     document.getElementById("horse-description").textContent = currentHorse.description || "暂无简介";
     document.getElementById("horse-dna").textContent = currentHorse.dna || "暂无 DNA 数据";
@@ -181,6 +158,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     likeButton.classList.toggle("active", Boolean(currentHorse.liked_by_me));
     likeButton.textContent = currentHorse.liked_by_me ? "取消点赞" : "点赞";
+    updateFavoriteButton();
 
     if (currentHorse.can_edit) {
       deleteHorseButton.classList.remove("hidden");
@@ -192,6 +170,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     image.addEventListener("error", () => {
       image.src = window.HORSEY_CONFIG.placeholderImage;
     });
+
+    const ownerAvatar = document.getElementById("horse-owner-avatar");
+    const ownerAvatarFallback = document.getElementById("horse-owner-avatar-fallback");
+    ownerAvatarFallback.textContent = (currentHorse.owner || "?").slice(0, 1).toUpperCase();
+
+    if (currentHorse.owner_avatar_url) {
+      ownerAvatar.src = currentHorse.owner_avatar_url;
+      ownerAvatar.alt = (currentHorse.owner || "Uploader") + " avatar";
+      ownerAvatar.classList.remove("hidden");
+      ownerAvatarFallback.classList.add("hidden");
+      ownerAvatar.addEventListener("error", () => {
+        ownerAvatar.classList.add("hidden");
+        ownerAvatarFallback.classList.remove("hidden");
+      });
+    }
 
     window.HorseyUI.hideElement("detail-status");
     document.getElementById("horse-detail").classList.remove("hidden");
@@ -233,6 +226,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       likeButton.textContent = currentHorse.liked_by_me ? "取消点赞" : "点赞";
     } catch (error) {
       window.HorseyUI.showStatus("detail-status", error.message || "点赞失败");
+    }
+  });
+
+  favoriteButton.addEventListener("click", async () => {
+    if (!window.HorseyAuth.isLoggedIn()) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    try {
+      if (currentHorse.favorited_by_me) {
+        await window.HorseyApi.unfavoriteHorse(currentHorse.id);
+      } else {
+        await window.HorseyApi.favoriteHorse(currentHorse.id);
+      }
+
+      currentHorse = await window.HorseyHorses.loadHorseById(horseId);
+      updateFavoriteButton();
+    } catch (error) {
+      window.HorseyUI.showStatus("detail-status", error.message || "收藏失败");
     }
   });
 

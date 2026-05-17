@@ -39,30 +39,37 @@ window.HorseyAuth = {
     }
 
     const user = this.getCurrentUser();
+    const themeButton = window.HorseyTheme ? window.HorseyTheme.renderButton() : "";
 
     if (user) {
       const avatar = user.avatar_url
-        ? "<img class='user-avatar' src='" + this.escapeHtml(user.avatar_url) + "' alt='头像'>"
+        ? "<img class='user-avatar' src='" + this.escapeHtml(user.avatar_url) + "' alt='Avatar'>"
         : "<span class='user-avatar user-avatar-empty'>" + this.escapeHtml((user.username || "U").slice(0, 1).toUpperCase()) + "</span>";
       const adminLink = user.role === "admin"
-        ? "<a class='button button-secondary' href='admin.html'>后台</a>"
+        ? "<a class='button button-secondary' href='admin.html'>&#21518;&#21488;</a>"
         : "";
 
       container.innerHTML = [
-        "<a class='button button-secondary' href='login.html'>登录 / 注册</a>",
+        themeButton,
         "<span class='user-chip'>",
         avatar,
-        "<span>" + this.escapeHtml(user.username || "用户") + "</span>",
+        "<span>" + this.escapeHtml(user.username || "User") + "</span>",
         "</span>",
+        "<a class='button button-secondary' href='profile.html'>&#19978;&#20256;&#22836;&#20687;</a>",
         adminLink,
-        "<button class='button' id='logout-button' type='button'>退出</button>"
+        "<button class='button' id='logout-button' type='button'>&#36864;&#20986;</button>"
       ].join("");
 
+      window.HorseyTheme?.bindButton();
       document.getElementById("logout-button").addEventListener("click", () => this.logout());
       return;
     }
 
-    container.innerHTML = "<a class='button' href='login.html'>登录 / 注册</a>";
+    container.innerHTML = [
+      themeButton,
+      "<a class='button' href='login.html'>&#30331;&#24405; / &#27880;&#20876;</a>"
+    ].join("");
+    window.HorseyTheme?.bindButton();
   },
 
   escapeHtml(value) {

@@ -5,8 +5,8 @@
 .admin-head,
 .admin-table-wrap {
   padding: 24px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.58);
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
 }
@@ -22,7 +22,7 @@
   padding: 0 16px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--color-panel);
   color: var(--color-brown);
   cursor: pointer;
   font-weight: 700;

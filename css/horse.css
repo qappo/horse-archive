@@ -3,6 +3,7 @@
   grid-template-columns: minmax(280px, 420px) 1fr;
   gap: 28px;
   padding: 28px;
+  align-items: stretch;
 }
 
 .horse-detail-media {
@@ -18,6 +19,12 @@
   object-fit: cover;
 }
 
+.horse-detail-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .detail-id {
   color: var(--color-sage-700);
   font-size: 0.92rem;
@@ -26,20 +33,59 @@
   text-transform: uppercase;
 }
 
+.horse-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
 .horse-detail-body h1 {
   margin-top: 8px;
   font-size: clamp(2rem, 4vw, 3rem);
 }
 
 .horse-owner-line {
-  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
   color: var(--color-muted);
   font-size: 1rem;
 }
 
-.horse-owner-line span {
+.horse-owner-line strong {
   color: var(--color-sage-700);
   font-weight: 800;
+}
+
+.horse-owner-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 auto;
+  background: var(--color-sage-200);
+}
+
+.horse-owner-avatar-empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-brown);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.horse-owner-meta {
+  display: grid;
+  gap: 2px;
+  text-align: right;
+}
+
+.horse-owner-meta time {
+  color: var(--color-muted);
+  font-size: 0.92rem;
 }
 
 .detail-list {
@@ -77,28 +123,43 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin-top: 20px;
-  padding-top: 18px;
+  margin-top: auto;
+  padding-top: 22px;
   border-top: 1px solid var(--color-border);
 }
 
 .horse-like-summary {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-panel) 78%, var(--color-sage-50));
   color: var(--color-muted);
-  font-weight: 700;
+  font-size: 0.86rem;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .horse-like-summary strong {
-  color: var(--color-brown);
+  color: inherit;
+  font-size: inherit;
+  line-height: 1;
 }
 
 .dna-panel {
   position: relative;
   min-height: 430px;
   overflow: hidden;
-  border: 1px solid rgba(163, 255, 213, 0.28);
+  border: 1px solid var(--dna-border);
   border-radius: var(--radius-lg);
-  background: #050a09;
-  box-shadow: 0 24px 80px rgba(5, 10, 9, 0.34);
+  background:
+    radial-gradient(circle at 18% 16%, var(--dna-accent-soft), transparent 34%),
+    radial-gradient(circle at 82% 78%, var(--dna-accent-soft), transparent 36%),
+    var(--dna-bg);
+  box-shadow: 0 24px 80px rgba(54, 30, 20, 0.26);
 }
 
 .dna-panel::after {
@@ -109,13 +170,12 @@
   background:
     repeating-linear-gradient(
       180deg,
-      rgba(163, 255, 213, 0.08) 0,
-      rgba(163, 255, 213, 0.08) 1px,
+      var(--dna-accent-soft) 0,
+      var(--dna-accent-soft) 1px,
       transparent 1px,
       transparent 9px
     );
-  mix-blend-mode: screen;
-  opacity: 0.42;
+  opacity: 0.24;
 }
 
 .dna-panel canvas {
@@ -130,11 +190,13 @@
   z-index: 1;
   margin: 20px;
   overflow: hidden;
-  border: 1px solid rgba(163, 255, 213, 0.34);
+  border: 1px solid var(--dna-border);
   border-radius: 10px;
-  background: rgba(3, 8, 7, 0.86);
-  color: #caffec;
+  background: var(--dna-terminal);
+  color: var(--dna-text);
   font-family: Consolas, "Courier New", monospace;
+  backdrop-filter: blur(1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 36px rgba(54, 30, 20, 0.14);
 }
 
 .dna-terminal-bar {
@@ -143,21 +205,21 @@
   gap: 8px;
   min-height: 42px;
   padding: 0 16px;
-  border-bottom: 1px solid rgba(163, 255, 213, 0.24);
-  background: rgba(163, 255, 213, 0.08);
+  border-bottom: 1px solid var(--dna-border);
+  background: var(--dna-accent-soft);
 }
 
 .dna-dot {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #a3ffd5;
+  background: var(--dna-accent);
   opacity: 0.72;
 }
 
 .dna-window-title {
   margin-left: 8px;
-  color: rgba(202, 255, 236, 0.78);
+  color: var(--dna-muted);
   font-size: 0.85rem;
 }
 
@@ -171,20 +233,20 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  color: rgba(202, 255, 236, 0.86);
+  color: var(--dna-text);
   font-size: 0.95rem;
 }
 
 .dna-prompt {
-  color: #a3ffd5;
+  color: var(--dna-accent);
   font-weight: 800;
 }
 
 .dna-copy-button {
   min-height: 38px;
   margin-left: auto;
-  background: #a3ffd5;
-  color: #050a09;
+  background: var(--dna-accent);
+  color: var(--dna-bg);
 }
 
 .dna-grid {
@@ -199,19 +261,19 @@
   align-content: start;
   gap: 8px;
   padding: 14px;
-  border: 1px solid rgba(163, 255, 213, 0.22);
+  border: 1px solid var(--dna-border);
   border-radius: 8px;
-  background: rgba(163, 255, 213, 0.06);
+  background: var(--dna-accent-soft);
 }
 
 .dna-sidebar span {
-  color: rgba(202, 255, 236, 0.54);
+  color: var(--dna-muted);
   font-size: 0.72rem;
   letter-spacing: 0.12em;
 }
 
 .dna-sidebar strong {
-  color: #a3ffd5;
+  color: var(--dna-accent);
   font-size: 0.95rem;
 }
 
@@ -220,12 +282,12 @@
   margin: 0;
   padding: 18px;
   overflow: auto;
-  border: 1px solid rgba(163, 255, 213, 0.22);
+  border: 1px solid var(--dna-border);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.32);
+  background: var(--dna-pre-bg);
   white-space: pre-wrap;
   word-break: break-all;
-  color: #caffec;
+  color: var(--dna-text);
   font: 0.95rem/1.7 Consolas, "Courier New", monospace;
 }
 
@@ -239,8 +301,13 @@
 }
 
 .comment-form {
+  position: relative;
   display: grid;
   gap: 12px;
+  margin-top: 18px;
+}
+
+#comment-status {
   margin-top: 18px;
 }
 
@@ -253,9 +320,22 @@
     grid-template-columns: 1fr;
   }
 
-  .horse-social-row {
+  .horse-detail-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .horse-owner-meta {
+    text-align: left;
+  }
+
+  .horse-social-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .horse-social-row .inline-actions {
+    width: 100%;
   }
 
   .dna-grid {

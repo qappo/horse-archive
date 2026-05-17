@@ -7,6 +7,7 @@
 }
 
 .upload-form {
+  position: relative;
   display: grid;
   gap: 14px;
   max-width: 760px;

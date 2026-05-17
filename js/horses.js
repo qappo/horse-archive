@@ -1,5 +1,6 @@
 window.HorseyHorses = {
   normalizeHorse(horse) {
+    const currentUser = window.HorseyAuth?.getCurrentUser?.() || {};
     const displayNumber = horse.display_number || null;
     const displayCode = horse.display_code || (displayNumber
       ? String(displayNumber).padStart(3, "0")
@@ -12,13 +13,17 @@ window.HorseyHorses = {
       name: horse.name || "未命名马匹",
       owner: horse.owner || horse.owner_username || horse.username || "未知",
       owner_user_id: horse.owner_user_id || horse.user_id || null,
+      owner_avatar_url: horse.owner_avatar_url || horse.avatar_url || "",
+      created_at: horse.created_at || horse.createdAt || "",
       description: horse.description || "",
       image: horse.image || horse.image_url || window.HORSEY_CONFIG.placeholderImage,
       image_url: horse.image_url || horse.image || "",
       dna: horse.dna || "",
       like_count: Number(horse.like_count || 0),
       liked_by_me: Boolean(horse.liked_by_me),
-      can_edit: Boolean(horse.can_edit)
+      favorite_count: Number(horse.favorite_count || 0),
+      favorited_by_me: Boolean(horse.favorited_by_me),
+      can_edit: Boolean(horse.can_edit) || currentUser.role === "admin"
     };
   },
 

@@ -2,6 +2,7 @@ window.HorseyComments = {
   async fetchComments(horseId) {
     const result = await window.HorseyApi.getComments(horseId);
     const comments = window.HorseyApi.normalizeCommentsResult(result);
+    const currentUser = window.HorseyAuth?.getCurrentUser?.() || {};
 
     return comments.map((comment) => ({
       id: comment.id || comment.comment_id || "",
@@ -13,7 +14,7 @@ window.HorseyComments = {
       content: comment.content || comment.text || comment.comment || "",
       like_count: Number(comment.like_count || 0),
       liked_by_me: Boolean(comment.liked_by_me),
-      can_delete: Boolean(comment.can_delete),
+      can_delete: Boolean(comment.can_delete) || currentUser.role === "admin",
       created_at: comment.created_at || comment.createdAt || comment.time || ""
     }));
   },

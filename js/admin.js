@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async () => {
+﻿document.addEventListener("DOMContentLoaded", async () => {
   const user = window.HorseyAuth.getCurrentUser();
   const content = document.getElementById("admin-content");
   const status = document.getElementById("admin-status");
@@ -24,13 +24,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function table(headers, rows) {
+    const bodyRows = Array.isArray(rows) ? rows : [String(rows || "")];
+
     return [
       "<table class='admin-table'>",
       "<thead><tr>",
       headers.map((header) => "<th>" + escapeHtml(header) + "</th>").join(""),
       "</tr></thead>",
       "<tbody>",
-      rows.join(""),
+      bodyRows.join(""),
       "</tbody>",
       "</table>"
     ].join("");
@@ -47,7 +49,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function renderUsers() {
     const result = await window.HorseyApi.adminList("users");
     const users = result.users || [];
-    content.innerHTML = table(["ID", "用户名", "头像 URL", "角色", "注册时间", "操作"], users.map((item) => [
+
+    content.innerHTML = table(["ID", "用户名", "头像 URL", "角色", "注册时间", "状态", "操作"], users.map((item) => [
       "<tr>",
       "<td>" + item.id + "</td>",
       "<td>" + escapeHtml(item.username) + "</td>",
@@ -57,9 +60,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       "<option value='admin'" + (item.role === "admin" ? " selected" : "") + ">admin</option>",
       "</select></td>",
       "<td>" + escapeHtml(item.created_at) + "</td>",
-      "<td><button class='button button-secondary' data-save-user='" + item.id + "' type='button'>保存</button></td>",
+      "<td>" + (item.deleted_at ? "已删除 " + escapeHtml(item.deleted_at) : "正常") + "</td>",
+      "<td class='inline-actions'>",
+      "<button class='button button-secondary' data-save-user='" + item.id + "' type='button'>保存</button>",
+      "<button class='button' data-delete-user='" + item.id + "' type='button'>删除</button>",
+      "</td>",
       "</tr>"
-    ].join("")).join(""));
+    ].join("")));
 
     content.querySelectorAll("[data-save-user]").forEach((button) => {
       button.addEventListener("click", async () => {
@@ -71,11 +78,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         setStatus("用户已保存。");
       });
     });
+
+    content.querySelectorAll("[data-delete-user]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.dataset.deleteUser;
+
+        if (!confirm("确认标记删除这个用户？用户会保留在后台列表中，并显示为已删除。")) {
+          return;
+        }
+
+        await window.HorseyApi.adminDeleteUser(id);
+        await loadTab("users");
+      });
+    });
   }
 
   async function renderHorses() {
     const result = await window.HorseyApi.adminList("horses");
     const horses = result.horses || [];
+
     content.innerHTML = table(["编号", "内部 ID", "图", "名称", "上传者", "图片 URL", "简介", "DNA", "状态", "操作"], horses.map((item) => [
       "<tr>",
       "<td>#" + escapeHtml(item.display_code || item.display_number || "") + "</td>",
@@ -92,7 +113,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "<button class='button' data-delete-horse='" + escapeHtml(item.id) + "' type='button'>删除</button>",
       "</td>",
       "</tr>"
-    ].join("")).join(""));
+    ].join("")));
 
     content.querySelectorAll("[data-save-horse]").forEach((button) => {
       button.addEventListener("click", async () => {
@@ -124,6 +145,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function renderComments() {
     const result = await window.HorseyApi.adminList("comments");
     const comments = result.comments || [];
+
     content.innerHTML = table(["ID", "马匹", "用户", "内容", "时间", "状态", "操作"], comments.map((item) => [
       "<tr>",
       "<td>" + item.id + "</td>",
@@ -137,7 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "<button class='button' data-delete-comment='" + item.id + "' type='button'>删除</button>",
       "</td>",
       "</tr>"
-    ].join("")).join(""));
+    ].join("")));
 
     content.querySelectorAll("[data-save-comment]").forEach((button) => {
       button.addEventListener("click", async () => {
@@ -166,22 +188,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function renderEmojis() {
     const result = await window.HorseyApi.adminList("emojis");
     const emojis = result.emojis || [];
+
     content.innerHTML = [
       "<form class='admin-form' id='emoji-create-form'>",
       "<input id='emoji-code' placeholder='code' required>",
       "<input id='emoji-label' placeholder='label' required>",
       "<input id='emoji-value' placeholder='emoji 文本'>",
-      "<input id='emoji-image-url' placeholder='image_url'>",
       "<input id='emoji-sort-order' type='number' placeholder='排序' value='0'>",
       "<button class='button' type='submit'>新增</button>",
       "</form>",
-      table(["ID", "Code", "Label", "Value", "Image", "排序", "启用", "操作"], emojis.map((item) => [
+      table(["ID", "Code", "Label", "Value", "排序", "启用", "操作"], emojis.map((item) => [
         "<tr>",
         "<td>" + item.id + "</td>",
         "<td>" + textInput("emoji-code", item.id, item.code) + "</td>",
         "<td>" + textInput("emoji-label", item.id, item.label) + "</td>",
         "<td>" + textInput("emoji-value", item.id, item.value) + "</td>",
-        "<td>" + textInput("emoji-image", item.id, item.image_url) + "</td>",
         "<td><input data-emoji-sort='" + item.id + "' type='number' value='" + Number(item.sort_order || 0) + "'></td>",
         "<td><select data-emoji-enabled='" + item.id + "'>",
         "<option value='1'" + (Number(item.enabled) === 1 ? " selected" : "") + ">是</option>",
@@ -189,7 +210,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         "</select></td>",
         "<td><button class='button button-secondary' data-save-emoji='" + item.id + "' type='button'>保存</button></td>",
         "</tr>"
-      ].join("")).join(""))
+      ].join("")))
     ].join("");
 
     document.getElementById("emoji-create-form").addEventListener("submit", async (event) => {
@@ -198,7 +219,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         code: document.getElementById("emoji-code").value,
         label: document.getElementById("emoji-label").value,
         value: document.getElementById("emoji-value").value,
-        image_url: document.getElementById("emoji-image-url").value,
+        image_url: "",
         sort_order: Number(document.getElementById("emoji-sort-order").value || 0),
         enabled: true
       });
@@ -212,7 +233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           code: content.querySelector("[data-emoji-code='" + id + "']").value,
           label: content.querySelector("[data-emoji-label='" + id + "']").value,
           value: content.querySelector("[data-emoji-value='" + id + "']").value,
-          image_url: content.querySelector("[data-emoji-image='" + id + "']").value,
+          image_url: "",
           sort_order: Number(content.querySelector("[data-emoji-sort='" + id + "']").value || 0),
           enabled: content.querySelector("[data-emoji-enabled='" + id + "']").value === "1"
         });

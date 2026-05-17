@@ -1,31 +1,21 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const status = document.getElementById("auth-status");
   const user = window.HorseyAuth.getCurrentUser();
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
-  const avatarCard = document.getElementById("avatar-card");
-  const avatarForm = document.getElementById("avatar-form");
-  const avatarPreview = document.getElementById("login-avatar-preview");
 
   function setStatus(text) {
     status.textContent = text;
   }
 
-  async function renderAvatarCard() {
-    if (!window.HorseyAuth.isLoggedIn()) {
-      avatarCard.classList.add("hidden");
-      return;
-    }
-
-    const currentUser = await window.HorseyAuth.refreshMe();
-    avatarCard.classList.remove("hidden");
-    avatarPreview.src = currentUser?.avatar_url || window.HORSEY_CONFIG.placeholderImage;
-    document.getElementById("avatar-url").value = currentUser?.avatar_url || "";
+  function redirectHome() {
+    window.setTimeout(() => {
+      window.location.href = "index.html";
+    }, 700);
   }
 
   if (user) {
     setStatus("当前已登录用户：" + (user.username || "用户"));
-    await renderAvatarCard();
   } else {
     setStatus("请输入用户名和密码进行登录或注册。");
   }
@@ -54,11 +44,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.HorseyStorage.setToken(auth.token);
       window.HorseyStorage.setUser(auth.user || { username });
       window.HorseyAuth.renderHeaderActions();
-      await renderAvatarCard();
-      setStatus("登录成功，正在返回马匹图鉴...");
-      window.setTimeout(() => {
-        window.location.href = "index.html";
-      }, 700);
+      setStatus("登录成功，正在返回主页...");
+      redirectHome();
     } catch (error) {
       setStatus(error.message || "登录失败");
     }
@@ -91,52 +78,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.HorseyStorage.setToken(auth.token);
         window.HorseyStorage.setUser(auth.user || { username });
         window.HorseyAuth.renderHeaderActions();
-        await renderAvatarCard();
       }
 
-      setStatus(auth.token ? "注册成功，正在返回马匹图鉴..." : "注册成功，请继续登录。");
+      setStatus(auth.token ? "注册成功，正在返回主页..." : "注册成功，请继续登录。");
 
       if (auth.token) {
-        window.setTimeout(() => {
-          window.location.href = "index.html";
-        }, 700);
+        redirectHome();
       }
     } catch (error) {
       setStatus(error.message || "注册失败");
-    }
-  });
-
-  avatarForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const file = document.getElementById("avatar-file").files[0];
-    const typedUrl = document.getElementById("avatar-url").value.trim();
-    let avatarUrl = typedUrl;
-
-    if (!file && !typedUrl) {
-      setStatus("请选择头像图片，或填写头像图片 URL。");
-      return;
-    }
-
-    try {
-      if (file) {
-        setStatus("正在上传头像...");
-        avatarUrl = await window.HorseyApi.uploadFileToOss(file, "avatar");
-      }
-
-      setStatus("正在保存头像...");
-      const result = await window.HorseyApi.updateAvatar(avatarUrl);
-      const updatedUser = result.user || result.data?.user;
-
-      if (updatedUser) {
-        window.HorseyStorage.setUser(updatedUser);
-      }
-
-      avatarPreview.src = avatarUrl;
-      window.HorseyAuth.renderHeaderActions();
-      setStatus("头像已保存。");
-    } catch (error) {
-      setStatus(error.message || "头像保存失败");
     }
   });
 });

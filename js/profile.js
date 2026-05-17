@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const user = await window.HorseyAuth.refreshMe();
 
   avatar.src = user?.avatar_url || window.HORSEY_CONFIG.placeholderImage;
-  document.getElementById("avatar-url").value = user?.avatar_url || "";
 
   function showStatus(text) {
     status.textContent = text;
@@ -21,19 +20,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     event.preventDefault();
 
     const file = document.getElementById("avatar-file").files[0];
-    const typedUrl = document.getElementById("avatar-url").value.trim();
-    let avatarUrl = typedUrl;
 
-    if (!file && !typedUrl) {
-      showStatus("请选择头像图片，或填写头像图片 URL。");
+    if (!file) {
+      showStatus("请选择头像图片。");
       return;
     }
 
     try {
-      if (file) {
-        showStatus("正在上传头像...");
-        avatarUrl = await window.HorseyApi.uploadFileToOss(file, "avatar");
-      }
+      showStatus("正在上传头像...");
+      const avatarUrl = await window.HorseyApi.uploadFileToOss(file, "avatar");
 
       showStatus("正在保存头像...");
       const result = await window.HorseyApi.updateAvatar(avatarUrl);
@@ -41,6 +36,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (updatedUser) {
         window.HorseyStorage.setUser(updatedUser);
+      } else {
+        const currentUser = window.HorseyAuth.getCurrentUser() || {};
+        window.HorseyStorage.setUser({ ...currentUser, avatar_url: avatarUrl });
       }
 
       avatar.src = avatarUrl;

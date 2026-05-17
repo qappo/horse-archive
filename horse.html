@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Horsey Web - 马匹详情</title>
+  <title>Horse_Archive - 马匹详情</title>
+  <link rel="icon" type="image/png" href="assets/rabbit2.png">
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
@@ -25,9 +26,18 @@
           <img id="horse-image" alt="马匹图片">
         </div>
         <div class="horse-detail-body">
-          <p class="detail-id" id="horse-id"></p>
+          <div class="horse-detail-head">
+            <p class="detail-id" id="horse-id"></p>
+            <div class="horse-owner-line">
+              <img class="horse-owner-avatar hidden" id="horse-owner-avatar" alt="">
+              <span class="horse-owner-avatar horse-owner-avatar-empty" id="horse-owner-avatar-fallback"></span>
+              <div class="horse-owner-meta">
+                <span>By <strong id="horse-owner"></strong></span>
+                <time id="horse-created-at"></time>
+              </div>
+            </div>
+          </div>
           <h1 id="horse-name"></h1>
-          <p class="horse-owner-line">By <span id="horse-owner"></span></p>
           <section class="detail-description">
             <h2>简介</h2>
             <p id="horse-description"></p>
@@ -36,6 +46,7 @@
             <span class="horse-like-summary">点赞数：<strong id="horse-like-count">0</strong></span>
             <div class="inline-actions">
               <button class="button" id="horse-like-button" type="button">点赞</button>
+              <button class="button button-secondary" id="horse-favorite-button" type="button">收藏</button>
               <button class="button button-secondary hidden" id="horse-delete-button" type="button">删除我的马</button>
             </div>
           </div>
@@ -87,7 +98,7 @@
 
         <form class="comment-form hidden" id="comment-form">
           <label class="field-label" for="comment-content" id="comment-label">发表评论</label>
-          <div class="emoji-bar" id="emoji-bar"></div>
+          <div class="emoji-picker-anchor" id="emoji-picker"></div>
           <textarea id="comment-content" rows="4" placeholder="写下你对这匹马的看法"></textarea>
           <div class="inline-actions">
             <button class="button" type="submit">提交评论</button>
@@ -104,10 +115,12 @@
   <script src="js/config.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/horses.js"></script>
   <script src="js/comments.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/emoji-picker.js"></script>
   <script src="js/horse.js"></script>
 </body>
 </html>

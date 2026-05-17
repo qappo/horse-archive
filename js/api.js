@@ -171,6 +171,26 @@ window.HorseyApi = {
     });
   },
 
+  async getFavorites() {
+    return this.request("/favorites", { method: "GET" });
+  },
+
+  async favoriteHorse(horseId) {
+    return this.request("/favorites", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ horse_id: horseId })
+    });
+  },
+
+  async unfavoriteHorse(horseId) {
+    return this.request("/favorites", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ horse_id: horseId })
+    });
+  },
+
   async getEmojis() {
     return this.request("/emojis", { method: "GET" });
   },
@@ -184,6 +204,12 @@ window.HorseyApi = {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
+    });
+  },
+
+  async adminDeleteUser(id) {
+    return this.request("/admin/users/" + encodeURIComponent(id), {
+      method: "DELETE"
     });
   },
 

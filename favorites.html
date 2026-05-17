@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horse_Archive - 我的收藏</title>
+  <link rel="icon" type="image/png" href="assets/rabbit2.png">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="button button-secondary" href="index.html">返回首页</a>
+      <div class="header-actions" id="header-actions"></div>
+    </header>
+
+    <main class="page page-home">
+      <section class="section-header">
+        <div>
+          <p class="section-kicker">Favorites</p>
+          <h1 class="section-title">我的收藏</h1>
+        </div>
+        <p class="section-meta" id="favorite-count">加载中...</p>
+      </section>
+
+      <section>
+        <div class="status-box" id="favorites-status">正在读取收藏...</div>
+        <div class="horse-grid" id="favorite-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/horses.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/favorites.js"></script>
+</body>
+</html>
