@@ -47,9 +47,33 @@
             <div class="inline-actions">
               <button class="button" id="horse-like-button" type="button">点赞</button>
               <button class="button button-secondary" id="horse-favorite-button" type="button">收藏</button>
+              <button class="button button-secondary hidden" id="horse-edit-button" type="button">编辑我的马</button>
               <button class="button button-secondary hidden" id="horse-delete-button" type="button">删除我的马</button>
             </div>
           </div>
+
+          <form class="horse-edit-form hidden" id="horse-edit-form">
+            <label class="field-label" for="horse-edit-name">名称</label>
+            <input id="horse-edit-name" type="text" placeholder="输入马匹名称" required>
+
+            <label class="field-label" for="horse-edit-image">更换图片</label>
+            <input id="horse-edit-image" type="file" accept="image/*">
+
+            <label class="field-label" for="horse-edit-image-url">原图 URL</label>
+            <input id="horse-edit-image-url" type="url" placeholder="https://example.com/horse.png">
+
+            <label class="field-label" for="horse-edit-description">简介</label>
+            <textarea id="horse-edit-description" rows="4" placeholder="简单介绍这匹马"></textarea>
+
+            <label class="field-label" for="horse-edit-dna">DNA</label>
+            <textarea id="horse-edit-dna" rows="6" placeholder="可以粘贴较长 DNA 数据"></textarea>
+
+            <div class="inline-actions">
+              <button class="button" id="horse-save-button" type="submit">保存修改</button>
+              <button class="button button-secondary" id="horse-cancel-edit-button" type="button">取消</button>
+            </div>
+            <div class="status-box hidden" id="horse-edit-status"></div>
+          </form>
         </div>
       </section>
 

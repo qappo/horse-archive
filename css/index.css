@@ -1,3 +1,14 @@
 .page-home {
   padding-bottom: 40px;
 }
+
+.home-title-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.home-updates-link {
+  flex: 0 0 auto;
+}

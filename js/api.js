@@ -195,6 +195,10 @@ window.HorseyApi = {
     return this.request("/emojis", { method: "GET" });
   },
 
+  async getUpdates() {
+    return this.request("/updates", { method: "GET" });
+  },
+
   async adminList(resource) {
     return this.request("/admin/" + encodeURIComponent(resource), { method: "GET" });
   },
@@ -223,6 +227,22 @@ window.HorseyApi = {
 
   async adminUpdateEmoji(id, payload) {
     return this.request("/admin/emojis/" + encodeURIComponent(id), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async adminCreateUpdate(payload) {
+    return this.request("/admin/updates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async adminUpdateUpdate(id, payload) {
+    return this.request("/admin/updates/" + encodeURIComponent(id), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)

@@ -242,6 +242,62 @@
     });
   }
 
+  async function renderUpdates() {
+    const result = await window.HorseyApi.adminList("updates");
+    const updates = result.updates || [];
+
+    content.innerHTML = [
+      "<form class='admin-form admin-update-form' id='update-create-form'>",
+      "<input id='update-title' placeholder='标题' required>",
+      "<input id='update-version' placeholder='版本号，可留空'>",
+      "<select id='update-published'>",
+      "<option value='1' selected>发布</option>",
+      "<option value='0'>隐藏</option>",
+      "</select>",
+      "<button class='button' type='submit'>新增</button>",
+      "<textarea id='update-content' rows='5' placeholder='更新内容' required></textarea>",
+      "</form>",
+      table(["ID", "标题", "版本", "内容", "状态", "时间", "操作"], updates.map((item) => [
+        "<tr>",
+        "<td>" + item.id + "</td>",
+        "<td>" + textInput("update-title", item.id, item.title) + "</td>",
+        "<td>" + textInput("update-version", item.id, item.version) + "</td>",
+        "<td>" + textareaInput("update-content", item.id, item.content) + "</td>",
+        "<td><select data-update-published='" + item.id + "'>",
+        "<option value='1'" + (item.is_published ? " selected" : "") + ">发布</option>",
+        "<option value='0'" + (!item.is_published ? " selected" : "") + ">隐藏</option>",
+        "</select></td>",
+        "<td>" + escapeHtml(item.created_at) + "</td>",
+        "<td><button class='button button-secondary' data-save-update='" + item.id + "' type='button'>保存</button></td>",
+        "</tr>"
+      ].join("")))
+    ].join("");
+
+    document.getElementById("update-create-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await window.HorseyApi.adminCreateUpdate({
+        title: document.getElementById("update-title").value,
+        version: document.getElementById("update-version").value,
+        content: document.getElementById("update-content").value,
+        is_published: document.getElementById("update-published").value === "1"
+      });
+      await loadTab("updates");
+    });
+
+    content.querySelectorAll("[data-save-update]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.dataset.saveUpdate;
+        await window.HorseyApi.adminUpdateUpdate(id, {
+          title: content.querySelector("[data-update-title='" + id + "']").value,
+          version: content.querySelector("[data-update-version='" + id + "']").value,
+          content: content.querySelector("[data-update-content='" + id + "']").value,
+          is_published: content.querySelector("[data-update-published='" + id + "']").value === "1"
+        });
+        setStatus("更新日志已保存。");
+      });
+    });
+  }
+
   async function loadTab(tab) {
     activeTab = tab;
     setStatus("正在读取后台数据...");
@@ -256,6 +312,8 @@
         await renderComments();
       } else if (tab === "emojis") {
         await renderEmojis();
+      } else if (tab === "updates") {
+        await renderUpdates();
       }
 
       setStatus("", true);

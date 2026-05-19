@@ -82,6 +82,14 @@
   margin-bottom: 18px;
 }
 
+.admin-update-form {
+  grid-template-columns: minmax(160px, 1fr) minmax(120px, 0.5fr) minmax(120px, 0.5fr) auto;
+}
+
+.admin-update-form textarea {
+  grid-column: 1 / -1;
+}
+
 @media (max-width: 900px) {
   .admin-form {
     grid-template-columns: 1fr;

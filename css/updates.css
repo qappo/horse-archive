@@ -1,0 +1,46 @@
+.updates-head,
+.update-card {
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-panel);
+  box-shadow: var(--shadow-card);
+}
+
+.updates-list {
+  display: grid;
+  gap: 16px;
+}
+
+.update-card {
+  display: grid;
+  gap: 12px;
+}
+
+.update-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--color-muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.update-version {
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-sage-700);
+}
+
+.update-title {
+  color: var(--color-brown);
+  font-size: 1.28rem;
+}
+
+.update-content {
+  color: var(--color-panel-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

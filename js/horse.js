@@ -8,7 +8,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const cancelReplyButton = document.getElementById("cancel-reply-button");
   const likeButton = document.getElementById("horse-like-button");
   const favoriteButton = document.getElementById("horse-favorite-button");
+  const editHorseButton = document.getElementById("horse-edit-button");
   const deleteHorseButton = document.getElementById("horse-delete-button");
+  const editHorseForm = document.getElementById("horse-edit-form");
+  const cancelEditButton = document.getElementById("horse-cancel-edit-button");
   let currentHorse = null;
   let replyToComment = null;
   let dnaStatusTimer = null;
@@ -83,6 +86,68 @@ document.addEventListener("DOMContentLoaded", async () => {
     favoriteButton.textContent = currentHorse?.favorited_by_me ? "取消收藏" : "收藏";
   }
 
+  function updateHorseView() {
+    document.title = "Horse_Archive - " + currentHorse.name;
+    document.getElementById("horse-id").textContent = "#" + (currentHorse.display_code || currentHorse.id || horseId);
+    document.getElementById("horse-name").textContent = currentHorse.name || "未命名马匹";
+    document.getElementById("horse-owner").textContent = currentHorse.owner || "未知";
+    document.getElementById("horse-created-at").textContent = currentHorse.created_at || "";
+    document.getElementById("horse-like-count").textContent = Number(currentHorse.like_count || 0);
+    document.getElementById("horse-description").textContent = currentHorse.description || "暂无简介";
+    document.getElementById("horse-dna").textContent = currentHorse.dna || "暂无 DNA 数据";
+    document.getElementById("dna-target-name").textContent = currentHorse.display_code || currentHorse.name || "horse";
+    document.getElementById("dna-length").textContent = String(currentHorse.dna || "").length;
+
+    likeButton.classList.toggle("active", Boolean(currentHorse.liked_by_me));
+    likeButton.textContent = currentHorse.liked_by_me ? "取消点赞" : "点赞";
+    updateFavoriteButton();
+
+    const image = document.getElementById("horse-image");
+    image.src = currentHorse.image || currentHorse.image_url || window.HORSEY_CONFIG.placeholderImage;
+    image.alt = (currentHorse.name || "马匹") + " 的图片";
+    image.addEventListener("error", () => {
+      image.src = window.HORSEY_CONFIG.placeholderImage;
+    }, { once: true });
+
+    const ownerAvatar = document.getElementById("horse-owner-avatar");
+    const ownerAvatarFallback = document.getElementById("horse-owner-avatar-fallback");
+    ownerAvatarFallback.textContent = (currentHorse.owner || "?").slice(0, 1).toUpperCase();
+
+    if (currentHorse.owner_avatar_url) {
+      ownerAvatar.src = currentHorse.owner_avatar_url;
+      ownerAvatar.alt = (currentHorse.owner || "Uploader") + " avatar";
+      ownerAvatar.classList.remove("hidden");
+      ownerAvatarFallback.classList.add("hidden");
+      ownerAvatar.addEventListener("error", () => {
+        ownerAvatar.classList.add("hidden");
+        ownerAvatarFallback.classList.remove("hidden");
+      }, { once: true });
+    } else {
+      ownerAvatar.classList.add("hidden");
+      ownerAvatarFallback.classList.remove("hidden");
+    }
+  }
+
+  function fillEditForm() {
+    document.getElementById("horse-edit-name").value = currentHorse.name || "";
+    document.getElementById("horse-edit-image").value = "";
+    document.getElementById("horse-edit-image-url").value = currentHorse.image_url || currentHorse.image || "";
+    document.getElementById("horse-edit-description").value = currentHorse.description || "";
+    document.getElementById("horse-edit-dna").value = currentHorse.dna || "";
+    window.HorseyUI.hideElement("horse-edit-status");
+  }
+
+  function setEditMode(isEditing) {
+    document.getElementById("horse-detail").classList.toggle("is-editing", isEditing);
+    editHorseForm.classList.toggle("hidden", !isEditing);
+    editHorseButton.textContent = isEditing ? "收起编辑" : "编辑我的马";
+
+    if (isEditing) {
+      fillEditForm();
+      document.getElementById("horse-edit-name").focus();
+    }
+  }
+
   function startDnaRain() {
     const canvas = document.getElementById("dna-canvas");
     const panel = document.getElementById("dna-panel");
@@ -144,46 +209,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     currentHorse = await window.HorseyHorses.loadHorseById(horseId);
-
-    document.title = "Horse_Archive - " + currentHorse.name;
-    document.getElementById("horse-id").textContent = "#" + (currentHorse.display_code || currentHorse.id || horseId);
-    document.getElementById("horse-name").textContent = currentHorse.name || "未命名马匹";
-    document.getElementById("horse-owner").textContent = currentHorse.owner || "未知";
-    document.getElementById("horse-created-at").textContent = currentHorse.created_at || "";
-    document.getElementById("horse-like-count").textContent = Number(currentHorse.like_count || 0);
-    document.getElementById("horse-description").textContent = currentHorse.description || "暂无简介";
-    document.getElementById("horse-dna").textContent = currentHorse.dna || "暂无 DNA 数据";
-    document.getElementById("dna-target-name").textContent = currentHorse.display_code || currentHorse.name || "horse";
-    document.getElementById("dna-length").textContent = String(currentHorse.dna || "").length;
-
-    likeButton.classList.toggle("active", Boolean(currentHorse.liked_by_me));
-    likeButton.textContent = currentHorse.liked_by_me ? "取消点赞" : "点赞";
-    updateFavoriteButton();
+    updateHorseView();
 
     if (currentHorse.can_edit) {
+      editHorseButton.classList.remove("hidden");
       deleteHorseButton.classList.remove("hidden");
-    }
-
-    const image = document.getElementById("horse-image");
-    image.src = currentHorse.image || window.HORSEY_CONFIG.placeholderImage;
-    image.alt = (currentHorse.name || "马匹") + " 的图片";
-    image.addEventListener("error", () => {
-      image.src = window.HORSEY_CONFIG.placeholderImage;
-    });
-
-    const ownerAvatar = document.getElementById("horse-owner-avatar");
-    const ownerAvatarFallback = document.getElementById("horse-owner-avatar-fallback");
-    ownerAvatarFallback.textContent = (currentHorse.owner || "?").slice(0, 1).toUpperCase();
-
-    if (currentHorse.owner_avatar_url) {
-      ownerAvatar.src = currentHorse.owner_avatar_url;
-      ownerAvatar.alt = (currentHorse.owner || "Uploader") + " avatar";
-      ownerAvatar.classList.remove("hidden");
-      ownerAvatarFallback.classList.add("hidden");
-      ownerAvatar.addEventListener("error", () => {
-        ownerAvatar.classList.add("hidden");
-        ownerAvatarFallback.classList.remove("hidden");
-      });
     }
 
     window.HorseyUI.hideElement("detail-status");
@@ -221,9 +251,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       currentHorse = await window.HorseyHorses.loadHorseById(horseId);
-      document.getElementById("horse-like-count").textContent = Number(currentHorse.like_count || 0);
-      likeButton.classList.toggle("active", Boolean(currentHorse.liked_by_me));
-      likeButton.textContent = currentHorse.liked_by_me ? "取消点赞" : "点赞";
+      updateHorseView();
     } catch (error) {
       window.HorseyUI.showStatus("detail-status", error.message || "点赞失败");
     }
@@ -243,9 +271,59 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       currentHorse = await window.HorseyHorses.loadHorseById(horseId);
-      updateFavoriteButton();
+      updateHorseView();
     } catch (error) {
       window.HorseyUI.showStatus("detail-status", error.message || "收藏失败");
+    }
+  });
+
+  editHorseButton.addEventListener("click", () => {
+    setEditMode(editHorseForm.classList.contains("hidden"));
+  });
+
+  cancelEditButton.addEventListener("click", () => {
+    setEditMode(false);
+  });
+
+  editHorseForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const name = document.getElementById("horse-edit-name").value.trim();
+    const description = document.getElementById("horse-edit-description").value.trim();
+    const dna = document.getElementById("horse-edit-dna").value.trim();
+    const file = document.getElementById("horse-edit-image").files[0];
+    const typedImageUrl = document.getElementById("horse-edit-image-url").value.trim();
+    let imageUrl = typedImageUrl;
+
+    if (!name) {
+      window.HorseyUI.showStatus("horse-edit-status", "请填写马匹名称。");
+      return;
+    }
+
+    try {
+      if (file) {
+        window.HorseyUI.showStatus("horse-edit-status", "正在上传新图片...");
+        imageUrl = await window.HorseyApi.uploadFileToOss(file, "horse");
+      }
+
+      window.HorseyUI.showStatus("horse-edit-status", "正在保存修改...");
+      await window.HorseyApi.updateHorse(currentHorse.id || horseId, {
+        name,
+        description,
+        dna,
+        image_url: imageUrl
+      });
+
+      currentHorse = await window.HorseyHorses.loadHorseById(horseId);
+      updateHorseView();
+      setEditMode(false);
+      document.getElementById("horse-detail").scrollIntoView({ block: "start" });
+      window.HorseyUI.showStatus("detail-status", "马匹资料已更新。");
+      window.setTimeout(() => {
+        window.HorseyUI.hideElement("detail-status");
+      }, 2200);
+    } catch (error) {
+      window.HorseyUI.showStatus("horse-edit-status", error.message || "保存失败");
     }
   });
 
