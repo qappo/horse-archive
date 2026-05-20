@@ -17,12 +17,12 @@ body::after {
 }
 
 body::before {
-  opacity: 0.18;
-  background-image: url("../assets/icon.png");
+  opacity: 0.3;
+  background-image: url("../assets/day-green.png");
   background-position: 0 0;
   background-size: 750px 750px;
   background-repeat: repeat;
-  animation: tech-symbol-drift 72s linear infinite;
+  animation: tech-symbol-drift 120s linear infinite;
 }
 
 body::after {
@@ -32,12 +32,12 @@ body::after {
   background-position: 0 0;
   background-size: 230px 230px;
   background-repeat: repeat;
-  animation: tech-underlay-drift 28s linear infinite;
+  animation: tech-underlay-drift 48s linear infinite;
 }
 
 :root[data-theme="dark"] body::before {
-  opacity: 0.18;
-  background-image: url("../assets/icon-night2.png");
+  opacity: 0.3;
+  background-image: url("../assets/night-pink.png");
 }
 
 :root[data-theme="dark"] body::after {
