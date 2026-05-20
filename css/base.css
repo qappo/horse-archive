@@ -20,7 +20,7 @@ body::before {
   opacity: 0.3;
   background-image: url("../assets/day-green.png");
   background-position: 0 0;
-  background-size: 750px 750px;
+  background-size: 520px 520px;
   background-repeat: repeat;
   animation: tech-symbol-drift 120s linear infinite;
 }
@@ -217,7 +217,7 @@ textarea:focus {
   }
 
   to {
-    background-position: 750px 750px;
+    background-position: 520px 520px;
   }
 }
 
