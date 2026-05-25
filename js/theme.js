@@ -22,9 +22,12 @@ window.HorseyTheme = {
 
   renderButton() {
     return [
-      "<button class='button button-secondary theme-toggle' id='theme-toggle-button' type='button'>",
-      "<span class='theme-toggle-icon' aria-hidden='true'></span>",
-      "<span class='theme-toggle-text'></span>",
+      "<button class='theme-toggle' id='theme-toggle-button' type='button' aria-label='切换夜间模式'>",
+      "<span class='theme-toggle-track' aria-hidden='true'>",
+      "<span class='theme-toggle-icon theme-toggle-sun'>☀</span>",
+      "<span class='theme-toggle-icon theme-toggle-moon'>☾</span>",
+      "<span class='theme-toggle-knob'></span>",
+      "</span>",
       "</button>"
     ].join("");
   },
@@ -48,16 +51,9 @@ window.HorseyTheme = {
     }
 
     const isDark = this.getTheme() === "dark";
-    const icon = button.querySelector(".theme-toggle-icon");
-    const text = button.querySelector(".theme-toggle-text");
-
-    if (icon) {
-      icon.textContent = isDark ? "\u2600" : "\u263E";
-    }
-
-    if (text) {
-      text.textContent = isDark ? "\u65e5\u95f4" : "\u591c\u95f4";
-    }
+    button.classList.toggle("is-dark", isDark);
+    button.setAttribute("aria-pressed", String(isDark));
+    button.title = isDark ? "切换到日间模式" : "切换到夜间模式";
   }
 };
 

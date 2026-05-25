@@ -7,24 +7,78 @@
 }
 
 .horse-detail-media {
+  position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--color-sage-200);
+  background: #171717;
   min-height: 320px;
 }
 
 .horse-detail-media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
-.horse-detail-card.is-editing {
-  grid-template-columns: 1fr;
+.horse-gallery-button {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.42);
+  color: #fff;
+  cursor: pointer;
+  font-size: 2rem;
+  line-height: 1;
+  transform: translateY(-50%);
 }
 
-.horse-detail-card.is-editing .horse-detail-media {
-  display: none;
+.horse-gallery-prev {
+  left: 14px;
+}
+
+.horse-gallery-next {
+  right: 14px;
+}
+
+.horse-gallery-counter {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.52);
+  color: #fff;
+  font-weight: 800;
+}
+
+.horse-gallery-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.horse-gallery-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.36);
+  cursor: pointer;
+}
+
+.horse-gallery-dot.active {
+  background: #ff4f6d;
 }
 
 .horse-detail-body {
@@ -157,16 +211,91 @@
   line-height: 1;
 }
 
+.horse-edit-panel {
+  padding: 28px;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
 .horse-edit-form {
+  position: relative;
   display: grid;
-  gap: 12px;
+  gap: 14px;
+  max-width: 760px;
   margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid var(--color-border);
 }
 
 .horse-edit-form .status-box {
   margin-top: 4px;
+}
+
+.horse-edit-form .media-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 12px;
+  min-height: 118px;
+  padding: 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-panel) 78%, var(--color-sage-50));
+}
+
+.horse-edit-form .media-preview-grid.empty {
+  display: flex;
+  align-items: center;
+}
+
+.media-preview-empty {
+  color: var(--color-muted);
+  font-size: 0.92rem;
+}
+
+.media-preview-card {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-sage-200);
+  cursor: grab;
+}
+
+.media-preview-card.dragging {
+  opacity: 0.5;
+}
+
+.media-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-preview-index,
+.media-preview-remove {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  font-weight: 800;
+}
+
+.media-preview-index {
+  left: 8px;
+  top: 8px;
+}
+
+.media-preview-remove {
+  right: 8px;
+  top: 8px;
+  border: 0;
+  cursor: pointer;
 }
 
 .dna-panel {
@@ -315,6 +444,66 @@
   padding: 28px;
 }
 
+.horse-files-panel {
+  padding: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-panel);
+  box-shadow: var(--shadow-card);
+}
+
+.horse-file-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.horse-file-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-panel) 82%, var(--color-sage-50));
+}
+
+.horse-file-item > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.horse-file-name {
+  color: var(--color-brown);
+  font-weight: 800;
+}
+
+.horse-file-meta {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.horse-file-warning {
+  margin-top: 10px;
+  color: #b45309;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.horse-file-player {
+  display: block;
+  width: 100%;
+  max-width: 620px;
+  margin-top: 12px;
+  border-radius: var(--radius-sm);
+  background: #111;
+}
+
+audio.horse-file-player {
+  background: transparent;
+}
+
 .comment-auth-box {
   margin-top: 18px;
   color: var(--color-muted);
@@ -356,6 +545,10 @@
 
   .horse-social-row .inline-actions {
     width: 100%;
+  }
+
+  .horse-file-item {
+    flex-direction: column;
   }
 
   .dna-grid {

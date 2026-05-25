@@ -6,13 +6,20 @@
   box-shadow: var(--shadow-card);
 }
 
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
 .profile-avatar-wrap {
   width: 132px;
   height: 132px;
-  margin-top: 22px;
   border-radius: 50%;
   overflow: hidden;
   background: rgba(140, 179, 173, 0.24);
+  flex: 0 0 auto;
 }
 
 .profile-avatar-wrap img {
@@ -21,9 +28,22 @@
   object-fit: cover;
 }
 
+.profile-meta {
+  margin-top: 8px;
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
 .profile-form {
   display: grid;
   gap: 14px;
   max-width: 520px;
-  margin-top: 22px;
+  margin-top: 24px;
+}
+
+@media (max-width: 560px) {
+  .profile-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

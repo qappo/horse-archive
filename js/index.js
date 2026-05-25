@@ -9,16 +9,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function renderHorses() {
     grid.innerHTML = "";
-    window.HorseyUI.showStatus("home-status", "Loading horses...");
+    window.HorseyUI.showStatus("home-status", "正在读取马匹...");
 
     try {
       const horses = await window.HorseyHorses.loadAllHorses();
 
       window.HorseyUI.hideElement("home-status");
-      count.textContent = "Total " + horses.length;
+      count.textContent = "共 " + horses.length + " 匹";
 
       if (horses.length === 0) {
-        window.HorseyUI.showStatus("home-status", "No horses yet.");
+        window.HorseyUI.showStatus("home-status", "还没有马匹。");
         return;
       }
 
@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         grid.appendChild(window.HorseyUI.createHorseCard(horse));
       });
     } catch (error) {
-      window.HorseyUI.showStatus("home-status", error.message || "Failed to load horses");
-      count.textContent = "Load failed";
+      window.HorseyUI.showStatus("home-status", error.message || "读取马匹失败");
+      count.textContent = "读取失败";
     }
   }
 

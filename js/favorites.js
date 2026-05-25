@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       .map((horse) => window.HorseyHorses.normalizeHorse(horse));
 
     grid.innerHTML = "";
-    count.textContent = "Total " + horses.length;
+    count.textContent = "共 " + horses.length + " 匹";
 
     if (horses.length === 0) {
       window.HorseyUI.showStatus("favorites-status", "还没有收藏马匹。");

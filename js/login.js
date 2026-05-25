@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const auth = window.HorseyApi.normalizeAuthResult(result, username);
 
       if (!auth.token) {
-        throw new Error("登录成功了，但接口没有返回 token。");
+        throw new Error("登录成功，但接口没有返回 token。");
       }
 
       window.HorseyStorage.setToken(auth.token);

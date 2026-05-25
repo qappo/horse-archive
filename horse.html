@@ -23,7 +23,11 @@
 
       <section class="horse-detail-card hidden" id="horse-detail">
         <div class="horse-detail-media">
+          <button class="horse-gallery-button horse-gallery-prev hidden" id="horse-gallery-prev" type="button" aria-label="上一张">‹</button>
           <img id="horse-image" alt="马匹图片">
+          <span class="horse-gallery-counter hidden" id="horse-gallery-counter">1/1</span>
+          <div class="horse-gallery-dots" id="horse-gallery-dots"></div>
+          <button class="horse-gallery-button horse-gallery-next hidden" id="horse-gallery-next" type="button" aria-label="下一张">›</button>
         </div>
         <div class="horse-detail-body">
           <div class="horse-detail-head">
@@ -32,7 +36,7 @@
               <img class="horse-owner-avatar hidden" id="horse-owner-avatar" alt="">
               <span class="horse-owner-avatar horse-owner-avatar-empty" id="horse-owner-avatar-fallback"></span>
               <div class="horse-owner-meta">
-                <span>By <strong id="horse-owner"></strong></span>
+                <span>By <a class="horse-owner-link" id="horse-owner-link" href="profile.html"><strong id="horse-owner"></strong></a></span>
                 <time id="horse-created-at"></time>
               </div>
             </div>
@@ -51,30 +55,39 @@
               <button class="button button-secondary hidden" id="horse-delete-button" type="button">删除我的马</button>
             </div>
           </div>
-
-          <form class="horse-edit-form hidden" id="horse-edit-form">
-            <label class="field-label" for="horse-edit-name">名称</label>
-            <input id="horse-edit-name" type="text" placeholder="输入马匹名称" required>
-
-            <label class="field-label" for="horse-edit-image">更换图片</label>
-            <input id="horse-edit-image" type="file" accept="image/*">
-
-            <label class="field-label" for="horse-edit-image-url">原图 URL</label>
-            <input id="horse-edit-image-url" type="url" placeholder="https://example.com/horse.png">
-
-            <label class="field-label" for="horse-edit-description">简介</label>
-            <textarea id="horse-edit-description" rows="4" placeholder="简单介绍这匹马"></textarea>
-
-            <label class="field-label" for="horse-edit-dna">DNA</label>
-            <textarea id="horse-edit-dna" rows="6" placeholder="可以粘贴较长 DNA 数据"></textarea>
-
-            <div class="inline-actions">
-              <button class="button" id="horse-save-button" type="submit">保存修改</button>
-              <button class="button button-secondary" id="horse-cancel-edit-button" type="button">取消</button>
-            </div>
-            <div class="status-box hidden" id="horse-edit-status"></div>
-          </form>
         </div>
+      </section>
+
+      <section class="horse-edit-panel hidden" id="horse-edit-panel">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Edit</p>
+            <h1 class="section-title">编辑我的马</h1>
+          </div>
+        </div>
+
+        <form class="horse-edit-form" id="horse-edit-form">
+          <label class="field-label" for="horse-edit-name">名称</label>
+          <div class="emoji-picker-anchor" data-emoji-target="horse-edit-name"></div>
+          <input id="horse-edit-name" type="text" placeholder="输入马匹名称" required>
+
+          <label class="field-label" for="horse-edit-image">图片 / GIF（最多 5 张）</label>
+          <input id="horse-edit-image" type="file" accept="image/*,.gif" multiple>
+          <div class="media-preview-grid" id="horse-edit-preview"></div>
+
+          <label class="field-label" for="horse-edit-description">简介</label>
+          <div class="emoji-picker-anchor" data-emoji-target="horse-edit-description"></div>
+          <textarea id="horse-edit-description" rows="4" placeholder="简单介绍这匹马"></textarea>
+
+          <label class="field-label" for="horse-edit-dna">DNA</label>
+          <textarea id="horse-edit-dna" rows="6" placeholder="可以粘贴较长 DNA 数据"></textarea>
+
+          <div class="inline-actions">
+            <button class="button" id="horse-save-button" type="submit">保存修改</button>
+            <button class="button button-secondary" id="horse-cancel-edit-button" type="button">取消</button>
+          </div>
+          <div class="status-box hidden" id="horse-edit-status"></div>
+        </form>
       </section>
 
       <section class="dna-panel hidden" id="dna-panel">
@@ -106,6 +119,16 @@
             <div class="status-box hidden" id="dna-status"></div>
           </div>
         </div>
+      </section>
+
+      <section class="horse-files-panel hidden" id="horse-files-panel">
+        <div class="section-header">
+          <div>
+            <p class="section-kicker">Files</p>
+            <h2 class="section-title">附加文件</h2>
+          </div>
+        </div>
+        <div class="horse-file-list" id="horse-file-list"></div>
       </section>
 
       <section class="comment-panel">
@@ -145,6 +168,7 @@
   <script src="js/comments.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/emoji-picker.js"></script>
+  <script src="js/media-picker.js"></script>
   <script src="js/horse.js"></script>
 </body>
 </html>

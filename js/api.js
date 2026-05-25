@@ -63,6 +63,22 @@ window.HorseyApi = {
     });
   },
 
+  async updateMe(payload) {
+    return this.request("/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async getUser(userId) {
+    return this.request("/users/" + encodeURIComponent(userId), { method: "GET" });
+  },
+
+  async getUserHorses(userId) {
+    return this.request("/users/" + encodeURIComponent(userId) + "/horses", { method: "GET" });
+  },
+
   async getUploadPolicy(kind, filename) {
     return this.request("/upload-policy", {
       method: "POST",
@@ -155,11 +171,15 @@ window.HorseyApi = {
     });
   },
 
-  async like(targetType, targetId) {
+  async like(targetType, targetId, reactionValue = "") {
     return this.request("/likes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target_type: targetType, target_id: targetId })
+      body: JSON.stringify({
+        target_type: targetType,
+        target_id: targetId,
+        reaction_value: reactionValue
+      })
     });
   },
 
@@ -199,8 +219,28 @@ window.HorseyApi = {
     return this.request("/updates", { method: "GET" });
   },
 
+  async getMediaAssets() {
+    return this.request("/media", { method: "GET" });
+  },
+
+  async getHorseMediaAssets(horseId) {
+    return this.request("/media?horse_id=" + encodeURIComponent(horseId), { method: "GET" });
+  },
+
+  async createMediaAsset(payload) {
+    return this.request("/media", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
   async adminList(resource) {
     return this.request("/admin/" + encodeURIComponent(resource), { method: "GET" });
+  },
+
+  async adminStats() {
+    return this.request("/admin/stats", { method: "GET" });
   },
 
   async adminUpdateUser(id, payload) {

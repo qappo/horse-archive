@@ -18,7 +18,7 @@ window.HorseyEmojiPicker = {
     }
 
     const wrapper = this.wrapTarget(container, target);
-    const label = options.label || "Add emoji";
+    const label = options.label || "添加表情";
     const pickerId = "emoji-picker-" + Math.random().toString(36).slice(2);
 
     container.className = "emoji-picker-anchor";
@@ -35,7 +35,7 @@ window.HorseyEmojiPicker = {
     const popover = container.querySelector(".emoji-popover");
 
     const renderEmojis = async () => {
-      popover.innerHTML = "<span class='emoji-empty'>Loading...</span>";
+      popover.innerHTML = "<span class='emoji-empty'>正在读取表情...</span>";
 
       try {
         const emojis = this.sortEmojis(await this.getEmojis());
@@ -76,10 +76,10 @@ window.HorseyEmojiPicker = {
         });
 
         if (emojis.length === 0) {
-          popover.innerHTML = "<span class='emoji-empty'>No emojis</span>";
+          popover.innerHTML = "<span class='emoji-empty'>暂无表情</span>";
         }
       } catch (error) {
-        popover.innerHTML = "<span class='emoji-empty'>Failed to load emojis</span>";
+        popover.innerHTML = "<span class='emoji-empty'>读取表情失败</span>";
       }
     };
 

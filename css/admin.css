@@ -37,6 +37,33 @@
   overflow-x: auto;
 }
 
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.admin-stat-card {
+  display: grid;
+  gap: 8px;
+  min-height: 96px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-panel) 82%, var(--color-sage-50));
+}
+
+.admin-stat-card span {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.admin-stat-card strong {
+  color: var(--color-brown);
+  font-size: 1.55rem;
+}
+
 .admin-table {
   width: 100%;
   min-width: 860px;
@@ -66,6 +93,11 @@
   max-width: 360px;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.admin-muted {
+  color: var(--color-muted);
+  font-size: 0.86rem;
 }
 
 .admin-mini-image {

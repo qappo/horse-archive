@@ -51,7 +51,7 @@ window.HorseyAuth = {
 
       container.innerHTML = [
         themeButton,
-        "<a class='user-chip user-chip-link' href='profile.html' title='修改头像'>",
+        "<a class='user-chip user-chip-link' href='profile.html' title='个人主页'>",
         avatar,
         "<span>" + this.escapeHtml(user.username || "User") + "</span>",
         "</a>",

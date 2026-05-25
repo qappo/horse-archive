@@ -5,6 +5,7 @@ window.HorseyHorses = {
     const displayCode = horse.display_code || (displayNumber
       ? String(displayNumber).padStart(3, "0")
       : horse.id || "");
+    const imageUrls = Array.isArray(horse.image_urls) ? horse.image_urls.filter(Boolean).slice(0, 5) : [];
 
     return {
       id: horse.id || "",
@@ -16,8 +17,9 @@ window.HorseyHorses = {
       owner_avatar_url: horse.owner_avatar_url || horse.avatar_url || "",
       created_at: horse.created_at || horse.createdAt || "",
       description: horse.description || "",
-      image: horse.image || horse.image_url || window.HORSEY_CONFIG.placeholderImage,
-      image_url: horse.image_url || horse.image || "",
+      image_urls: imageUrls,
+      image: imageUrls[0] || horse.image || horse.image_url || window.HORSEY_CONFIG.placeholderImage,
+      image_url: imageUrls[0] || horse.image_url || horse.image || "",
       dna: horse.dna || "",
       like_count: Number(horse.like_count || 0),
       liked_by_me: Boolean(horse.liked_by_me),
