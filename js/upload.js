@@ -11,6 +11,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     listId: "horse-upload-preview",
     limit: 5
   });
+  window.HorseyFilePicker?.create({
+    inputId: "horse-upload-file",
+    label: "选择附加文件，也可以拖到这里"
+  });
 
   async function renderEmojiBars() {
     const pickers = Array.from(document.querySelectorAll("[data-emoji-target]"));
@@ -22,6 +26,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   await renderEmojiBars();
+
+  function validateAttachedFile(file) {
+    const maxBytes = 50 * 1024 * 1024;
+
+    if (file && file.size > maxBytes) {
+      throw new Error("附加文件过大，请上传 50MB 以内的文件。");
+    }
+  }
 
   function getAttachedFileType(file) {
     const mime = String(file?.type || "").toLowerCase();
@@ -50,6 +62,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const dna = document.getElementById("horse-upload-dna").value.trim();
     const attachedFile = document.getElementById("horse-upload-file").files[0] || null;
     const mediaItems = mediaPicker.getItems();
+
+    try {
+      validateAttachedFile(attachedFile);
+    } catch (error) {
+      window.HorseyUI.showStatus(uploadStatus, error.message);
+      return;
+    }
 
     if (!name || mediaItems.length === 0) {
       window.HorseyUI.showStatus(uploadStatus, "请填写马匹名称，并选择 1 到 5 张图片或 GIF。");

@@ -13,9 +13,9 @@ window.HorseyMediaPicker = {
       status = document.createElement("span");
 
       wrap.className = "media-picker-control";
-      button.className = "button button-secondary";
+      button.className = "media-picker-dropzone";
       button.type = "button";
-      button.textContent = "选择图片 / GIF";
+      button.textContent = "选择图片或 GIF，也可以拖到这里";
       status.className = "media-picker-status";
 
       input.classList.add("media-picker-input");
@@ -25,6 +25,18 @@ window.HorseyMediaPicker = {
       wrap.appendChild(status);
 
       button.addEventListener("click", () => input.click());
+      button.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        button.classList.add("drag-over");
+      });
+      button.addEventListener("dragleave", () => {
+        button.classList.remove("drag-over");
+      });
+      button.addEventListener("drop", (event) => {
+        event.preventDefault();
+        button.classList.remove("drag-over");
+        addFiles(event.dataTransfer.files);
+      });
     }
 
     function getItems() {

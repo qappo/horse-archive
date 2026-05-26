@@ -47,15 +47,22 @@ window.HorseyUI = {
       item.classList.add("comment-reply");
     }
 
-    const avatar = this.createAvatar(comment.avatar_url, comment.username);
+    const profileUrl = comment.user_id
+      ? "profile.html?user_id=" + encodeURIComponent(comment.user_id)
+      : "profile.html";
+    const avatar = document.createElement("a");
+    avatar.className = "comment-avatar-link";
+    avatar.href = profileUrl;
+    avatar.appendChild(this.createAvatar(comment.avatar_url, comment.username));
     const body = document.createElement("div");
     body.className = "comment-body";
 
     const meta = document.createElement("div");
     meta.className = "comment-meta";
 
-    const author = document.createElement("span");
+    const author = document.createElement("a");
     author.className = "comment-author";
+    author.href = profileUrl;
     author.textContent = comment.username || "匿名用户";
 
     const time = document.createElement("time");

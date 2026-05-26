@@ -21,15 +21,7 @@ window.HorseyTheme = {
   },
 
   renderButton() {
-    return [
-      "<button class='theme-toggle' id='theme-toggle-button' type='button' aria-label='切换夜间模式'>",
-      "<span class='theme-toggle-track' aria-hidden='true'>",
-      "<span class='theme-toggle-icon theme-toggle-sun'>☀</span>",
-      "<span class='theme-toggle-icon theme-toggle-moon'>☾</span>",
-      "<span class='theme-toggle-knob'></span>",
-      "</span>",
-      "</button>"
-    ].join("");
+    return "<theme-button class='theme-toggle-web' id='theme-toggle-button' value='" + this.getTheme() + "'></theme-button>";
   },
 
   bindButton() {
@@ -39,7 +31,7 @@ window.HorseyTheme = {
       return;
     }
 
-    button.addEventListener("click", () => this.toggle());
+    button.addEventListener("change", (event) => this.setTheme(event.detail));
     this.updateButton();
   },
 
@@ -51,7 +43,7 @@ window.HorseyTheme = {
     }
 
     const isDark = this.getTheme() === "dark";
-    button.classList.toggle("is-dark", isDark);
+    button.setAttribute("value", isDark ? "dark" : "light");
     button.setAttribute("aria-pressed", String(isDark));
     button.title = isDark ? "切换到日间模式" : "切换到夜间模式";
   }

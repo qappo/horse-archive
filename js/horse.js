@@ -22,10 +22,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     listId: "horse-edit-preview",
     limit: 5
   });
+  window.HorseyFilePicker?.create({
+    inputId: "horse-edit-file",
+    label: "选择附加文件，也可以拖到这里"
+  });
   let currentHorse = null;
   let currentImageIndex = 0;
   let replyToComment = null;
   let dnaStatusTimer = null;
+
+  function getAttachedFileType(file) {
+    const mime = String(file?.type || "").toLowerCase();
+    const name = String(file?.name || "").toLowerCase();
+
+    if (mime.startsWith("video/") || /\.(mp4|m4v|mov|webm)$/i.test(name)) return "video";
+    if (mime.startsWith("audio/") || /\.(mp3|m4a|aac|wav|ogg)$/i.test(name)) return "audio";
+    if (/\.(zip|rar|7z)$/i.test(name)) return "archive";
+    return "file";
+  }
+
+  function validateAttachedFile(file) {
+    const maxBytes = 50 * 1024 * 1024;
+
+    if (file && file.size > maxBytes) {
+      throw new Error("附加文件过大，请上传 50MB 以内的文件。");
+    }
+  }
 
   if (!horseId) {
     window.HorseyUI.showStatus("detail-status", "缺少马匹 ID，请从图鉴页重新进入。");
@@ -42,6 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function renderGallery() {
     const images = getHorseImages();
     const image = document.getElementById("horse-image");
+    const mediaPanel = document.querySelector(".horse-detail-media");
     currentImageIndex = Math.min(currentImageIndex, Math.max(images.length - 1, 0));
     image.src = images[currentImageIndex] || window.HORSEY_CONFIG.placeholderImage;
     image.alt = (currentHorse?.name || "马匹") + " 的图片";
@@ -50,6 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, { once: true });
 
     const hasMultiple = images.length > 1;
+    mediaPanel?.classList.toggle("has-multiple", hasMultiple);
     galleryPrev.classList.toggle("hidden", !hasMultiple);
     galleryNext.classList.toggle("hidden", !hasMultiple);
     galleryCounter.classList.toggle("hidden", !hasMultiple);
@@ -155,13 +179,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           .filter(Boolean)
           .join(" · ");
 
-        const download = document.createElement("a");
-        download.className = "button button-secondary";
-        download.href = file.file_url || "#";
-        download.target = "_blank";
-        download.rel = "noopener";
-        download.download = file.file_name || file.title || "";
-        download.textContent = "下载文件";
         const player = createMediaPlayer(file);
         const missingUrl = !String(file.file_url || "").trim();
 
@@ -175,10 +192,18 @@ document.addEventListener("DOMContentLoaded", async () => {
           warning.className = "horse-file-warning";
           warning.textContent = "这个附件缺少文件地址，无法播放或下载。";
           body.appendChild(warning);
-          download.setAttribute("aria-disabled", "true");
+        }
+        if (!player && !missingUrl) {
+          const download = document.createElement("a");
+          download.className = "button button-secondary horse-file-download";
+          download.href = file.file_url;
+          download.target = "_blank";
+          download.rel = "noopener";
+          download.download = file.file_name || file.title || "";
+          download.textContent = "下载文件";
+          body.appendChild(download);
         }
         item.appendChild(body);
-        item.appendChild(download);
         fileList.appendChild(item);
       });
 
@@ -320,6 +345,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function fillEditForm() {
     document.getElementById("horse-edit-name").value = currentHorse.name || "";
     document.getElementById("horse-edit-image").value = "";
+    document.getElementById("horse-edit-file").value = "";
     document.getElementById("horse-edit-description").value = currentHorse.description || "";
     document.getElementById("horse-edit-dna").value = currentHorse.dna || "";
     editMediaPicker.setExisting(getHorseImages());
@@ -338,7 +364,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     dnaPanel.classList.toggle("hidden", isEditing || !hasDna);
     filesPanel.classList.toggle("hidden", isEditing || !filesPanel.dataset.hasFiles);
     commentPanel?.classList.toggle("hidden", isEditing);
-    editHorseButton.textContent = "编辑我的马";
+    editHorseButton.textContent = "编辑/删除我的马";
 
     if (isEditing) {
       fillEditForm();
@@ -412,7 +438,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (currentHorse.can_edit) {
       editHorseButton.classList.remove("hidden");
-      deleteHorseButton.classList.remove("hidden");
     }
 
     window.HorseyUI.hideElement("detail-status");
@@ -440,6 +465,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   galleryPrev.addEventListener("click", () => moveGallery(-1));
   galleryNext.addEventListener("click", () => moveGallery(1));
+  document.querySelector(".horse-detail-media")?.addEventListener("click", (event) => {
+    if (!window.matchMedia("(hover: none)").matches) return;
+    if (event.target.closest("button")) return;
+    document.querySelector(".horse-detail-media")?.classList.toggle("show-controls");
+  });
 
   likeButton.addEventListener("click", async () => {
     if (!window.HorseyAuth.isLoggedIn()) {
@@ -494,7 +524,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const name = document.getElementById("horse-edit-name").value.trim();
     const description = document.getElementById("horse-edit-description").value.trim();
     const dna = document.getElementById("horse-edit-dna").value.trim();
+    const attachedFile = document.getElementById("horse-edit-file").files[0] || null;
     const mediaItems = editMediaPicker.getItems();
+
+    try {
+      validateAttachedFile(attachedFile);
+    } catch (error) {
+      window.HorseyUI.showStatus("horse-edit-status", error.message);
+      return;
+    }
 
     if (!name || mediaItems.length === 0) {
       window.HorseyUI.showStatus("horse-edit-status", "请填写马匹名称，并保留至少一张图片或 GIF。");
@@ -513,9 +551,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         image_urls: imageUrls
       });
 
+      if (attachedFile) {
+        window.HorseyUI.showStatus("horse-edit-status", "正在上传附加文件...");
+        const fileUrl = await window.HorseyApi.uploadFileToOss(attachedFile, "media");
+
+        window.HorseyUI.showStatus("horse-edit-status", "正在保存附加文件...");
+        await window.HorseyApi.createMediaAsset({
+          horse_id: currentHorse.id || horseId,
+          title: attachedFile.name,
+          file_url: fileUrl,
+          file_name: attachedFile.name,
+          file_type: getAttachedFileType(attachedFile),
+          mime_type: attachedFile.type || "",
+          file_size: attachedFile.size
+        });
+      }
+
       currentHorse = await window.HorseyHorses.loadHorseById(horseId);
       currentImageIndex = 0;
       updateHorseView();
+      await renderHorseFiles();
       setEditMode(false);
       document.getElementById("horse-detail").scrollIntoView({ block: "start" });
       window.HorseyUI.showStatus("detail-status", "马匹资料已更新。");

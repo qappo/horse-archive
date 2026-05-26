@@ -17,6 +17,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const horseGrid = document.getElementById("profile-horse-grid");
   let profileUser = null;
 
+  window.HorseyFilePicker?.create({
+    inputId: "avatar-file",
+    label: "选择头像图片，也可以拖到这里"
+  });
+
   if (!targetUserId) {
     window.location.href = "login.html";
     return;

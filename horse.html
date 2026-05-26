@@ -51,8 +51,7 @@
             <div class="inline-actions">
               <button class="button" id="horse-like-button" type="button">点赞</button>
               <button class="button button-secondary" id="horse-favorite-button" type="button">收藏</button>
-              <button class="button button-secondary hidden" id="horse-edit-button" type="button">编辑我的马</button>
-              <button class="button button-secondary hidden" id="horse-delete-button" type="button">删除我的马</button>
+              <button class="button button-secondary hidden" id="horse-edit-button" type="button">编辑/删除我的马</button>
             </div>
           </div>
         </div>
@@ -82,8 +81,15 @@
           <label class="field-label" for="horse-edit-dna">DNA</label>
           <textarea id="horse-edit-dna" rows="6" placeholder="可以粘贴较长 DNA 数据"></textarea>
 
+          <label class="field-label" for="horse-edit-file">附加文件（可选）</label>
+          <input id="horse-edit-file" type="file">
+          <div class="media-file-hint">
+            可以上传任意类型文件，单个文件请控制在 50MB 以内。保存后会显示在马匹详情页。
+          </div>
+
           <div class="inline-actions">
             <button class="button" id="horse-save-button" type="submit">保存修改</button>
+            <button class="button button-secondary" id="horse-delete-button" type="button">删除我的马</button>
             <button class="button button-secondary" id="horse-cancel-edit-button" type="button">取消</button>
           </div>
           <div class="status-box hidden" id="horse-edit-status"></div>
@@ -162,12 +168,14 @@
   <script src="js/config.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/theme-button.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/horses.js"></script>
   <script src="js/comments.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/emoji-picker.js"></script>
+  <script src="js/file-picker.js"></script>
   <script src="js/media-picker.js"></script>
   <script src="js/horse.js"></script>
 </body>
