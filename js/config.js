@@ -1,5 +1,5 @@
 window.HORSEY_CONFIG = {
-  apiBaseUrl: "https://horse-function-omedkrvtuy.cn-beijing.fcapp.run",
+  apiBaseUrl: "https://horse-function-omedkrvtuy.cn-shanghai.fcapp.run",
   storageKeys: {
     token: "horsey_token",
     user: "horsey_user"
