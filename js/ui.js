@@ -19,7 +19,7 @@ window.HorseyUI = {
 
     const id = document.createElement("p");
     id.className = "horse-card-id";
-    id.textContent = "#" + (horse.display_code || horse.id || "---");
+    id.textContent = (horse.is_pinned ? "置顶 · " : "") + "#" + (horse.display_code || horse.id || "---");
 
     const name = document.createElement("h3");
     name.className = "horse-card-name";
@@ -29,10 +29,21 @@ window.HorseyUI = {
     meta.className = "horse-card-meta";
     meta.textContent = "By " + (horse.owner || "未知") + " · ♥ " + Number(horse.like_count || 0);
 
+    if (horse.post_area === "horses" && horse.tag) {
+      const tag = document.createElement("p");
+      tag.className = "horse-card-tag";
+      tag.textContent = horse.tag;
+      body.appendChild(id);
+      body.appendChild(name);
+      body.appendChild(tag);
+      body.appendChild(meta);
+    } else {
+      body.appendChild(id);
+      body.appendChild(name);
+      body.appendChild(meta);
+    }
+
     imageWrapper.appendChild(image);
-    body.appendChild(id);
-    body.appendChild(name);
-    body.appendChild(meta);
     link.appendChild(imageWrapper);
     link.appendChild(body);
 

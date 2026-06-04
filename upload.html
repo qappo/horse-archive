@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Horse_Archive - 创建新马</title>
+  <title>Horse_Archive - 创建新帖</title>
   <link rel="icon" type="image/png" href="assets/rabbit.png">
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/variables.css">
@@ -14,7 +14,7 @@
 <body>
   <div class="site-shell">
     <header class="site-header">
-      <a class="button button-secondary" href="index.html">返回图鉴</a>
+      <a class="button button-secondary" href="index.html">返回首页</a>
       <div class="header-actions" id="header-actions"></div>
     </header>
 
@@ -23,34 +23,47 @@
         <div class="section-header">
           <div>
             <p class="section-kicker">Upload</p>
-            <h1 class="section-title">创建新马</h1>
+            <h1 class="section-title">创建新帖</h1>
           </div>
         </div>
 
         <form class="upload-form" id="horse-upload-form">
-          <label class="field-label" for="horse-upload-name">名称</label>
+          <label class="field-label" for="horse-upload-area">发布区域</label>
+          <select class="form-select" id="horse-upload-area">
+            <option value="horses" selected>马匹</option>
+            <option value="editor">编辑器</option>
+          </select>
+
+          <label class="field-label" for="horse-upload-name">标题</label>
           <div class="emoji-picker-anchor" data-emoji-target="horse-upload-name"></div>
-          <input id="horse-upload-name" type="text" placeholder="输入马匹名称" required>
+          <input id="horse-upload-name" type="text" placeholder="输入帖子标题" required>
 
           <label class="field-label" for="horse-upload-image">图片 / GIF（最多 5 张）</label>
           <input id="horse-upload-image" type="file" accept="image/*,.gif" multiple>
           <div class="media-preview-grid" id="horse-upload-preview"></div>
 
-          <label class="field-label" for="horse-upload-description">简介</label>
+          <label class="field-label" for="horse-upload-description">说明</label>
           <div class="emoji-picker-anchor" data-emoji-target="horse-upload-description"></div>
-          <textarea id="horse-upload-description" rows="4" placeholder="简单介绍这匹马"></textarea>
+          <textarea id="horse-upload-description" rows="4" placeholder="补充说明帖子内容"></textarea>
 
           <label class="field-label" for="horse-upload-dna">DNA</label>
           <textarea id="horse-upload-dna" rows="6" placeholder="可以粘贴较长 DNA 数据"></textarea>
 
+          <div class="post-tag-field" id="horse-upload-tag-field">
+            <label class="field-label" for="horse-upload-tag">Tag</label>
+            <select class="form-select" id="horse-upload-tag"></select>
+            <div class="emoji-picker-anchor" data-emoji-target="horse-upload-custom-tag"></div>
+            <input class="hidden" id="horse-upload-custom-tag" type="text" maxlength="24" placeholder="输入自选标签">
+          </div>
+
           <label class="field-label" for="horse-upload-file">附加文件（可选）</label>
           <input id="horse-upload-file" type="file">
           <div class="media-file-hint">
-            可以上传任意类型文件，单个文件请控制在 50MB 以内。创建后会显示在马匹详情页供下载。
+            可以上传任意类型文件，单个文件请控制在 50MB 以内。创建后会显示在帖子详情页供下载。
           </div>
 
           <div class="inline-actions">
-            <button class="button" type="submit">创建马匹</button>
+            <button class="button" type="submit">创建帖子</button>
             <a class="button button-secondary" href="index.html">取消</a>
           </div>
         </form>

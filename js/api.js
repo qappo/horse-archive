@@ -215,6 +215,10 @@ window.HorseyApi = {
     return this.request("/emojis", { method: "GET" });
   },
 
+  async getSiteSettings() {
+    return this.request("/settings", { method: "GET" });
+  },
+
   async getUpdates() {
     return this.request("/updates", { method: "GET" });
   },
@@ -251,6 +255,22 @@ window.HorseyApi = {
     });
   },
 
+  async adminUpdateHorse(id, payload) {
+    return this.request("/admin/horses/" + encodeURIComponent(id), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async adminUpdateSettings(payload) {
+    return this.request("/admin/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
   async adminDeleteUser(id) {
     return this.request("/admin/users/" + encodeURIComponent(id), {
       method: "DELETE"
@@ -273,6 +293,12 @@ window.HorseyApi = {
     });
   },
 
+  async adminDeleteEmoji(id) {
+    return this.request("/admin/emojis/" + encodeURIComponent(id), {
+      method: "DELETE"
+    });
+  },
+
   async adminCreateUpdate(payload) {
     return this.request("/admin/updates", {
       method: "POST",
@@ -286,6 +312,18 @@ window.HorseyApi = {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
+    });
+  },
+
+  async adminDeleteUpdate(id) {
+    return this.request("/admin/updates/" + encodeURIComponent(id), {
+      method: "DELETE"
+    });
+  },
+
+  async adminDeleteMedia(id) {
+    return this.request("/admin/media/" + encodeURIComponent(id), {
+      method: "DELETE"
     });
   },
 

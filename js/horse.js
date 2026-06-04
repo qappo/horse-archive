@@ -8,11 +8,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const cancelReplyButton = document.getElementById("cancel-reply-button");
   const likeButton = document.getElementById("horse-like-button");
   const favoriteButton = document.getElementById("horse-favorite-button");
+  const pinHorseButton = document.getElementById("horse-pin-button");
   const editHorseButton = document.getElementById("horse-edit-button");
   const deleteHorseButton = document.getElementById("horse-delete-button");
   const editHorsePanel = document.getElementById("horse-edit-panel");
   const editHorseForm = document.getElementById("horse-edit-form");
   const cancelEditButton = document.getElementById("horse-cancel-edit-button");
+  const editAreaInput = document.getElementById("horse-edit-area");
+  const editTagField = document.getElementById("horse-edit-tag-field");
+  const editTagInput = document.getElementById("horse-edit-tag");
+  const editCustomTagInput = document.getElementById("horse-edit-custom-tag");
   const galleryPrev = document.getElementById("horse-gallery-prev");
   const galleryNext = document.getElementById("horse-gallery-next");
   const galleryCounter = document.getElementById("horse-gallery-counter");
@@ -30,6 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let currentImageIndex = 0;
   let replyToComment = null;
   let dnaStatusTimer = null;
+  let availableTags = ["可爱", "猎奇", "速度"];
 
   function getAttachedFileType(file) {
     const mime = String(file?.type || "").toLowerCase();
@@ -50,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (!horseId) {
-    window.HorseyUI.showStatus("detail-status", "缺少马匹 ID，请从图鉴页重新进入。");
+    window.HorseyUI.showStatus("detail-status", "缺少帖子 ID，请从首页重新进入。");
     return;
   }
 
@@ -67,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const mediaPanel = document.querySelector(".horse-detail-media");
     currentImageIndex = Math.min(currentImageIndex, Math.max(images.length - 1, 0));
     image.src = images[currentImageIndex] || window.HORSEY_CONFIG.placeholderImage;
-    image.alt = (currentHorse?.name || "马匹") + " 的图片";
+    image.alt = (currentHorse?.name || "帖子") + " 的图片";
     image.addEventListener("error", () => {
       image.src = window.HORSEY_CONFIG.placeholderImage;
     }, { once: true });
@@ -237,6 +243,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     )));
   }
 
+  async function loadAvailableTags() {
+    const defaults = ["可爱", "猎奇", "速度"];
+    const tags = new Set(defaults);
+
+    try {
+      const posts = await window.HorseyHorses.loadAllHorses();
+      posts
+        .filter((post) => (post.post_area || "horses") === "horses")
+        .forEach((post) => {
+          const tag = String(post.tag || "").trim();
+          if (tag) tags.add(tag);
+        });
+    } catch (error) {
+      tags.add(currentHorse?.tag || "");
+    }
+
+    availableTags = Array.from(tags).filter(Boolean);
+  }
+
+  function renderEditTagOptions(selectedTag) {
+    const tags = new Set(availableTags);
+    if (selectedTag) tags.add(selectedTag);
+
+    editTagInput.innerHTML = "";
+    [
+      ["", "不选择标签"],
+      ...Array.from(tags).map((tag) => [tag, tag]),
+      ["__custom__", "自选标签"]
+    ].forEach(([value, label]) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = label;
+      option.selected = value === selectedTag;
+      editTagInput.appendChild(option);
+    });
+  }
+
+  function updateEditAreaFields() {
+    const isHorsePost = editAreaInput.value === "horses";
+    const customTagWrap = editCustomTagInput.closest(".emoji-field-wrap") || editCustomTagInput;
+    const showCustomTag = isHorsePost && editTagInput.value === "__custom__";
+    editTagField.classList.toggle("hidden", !isHorsePost);
+    editCustomTagInput.classList.toggle("hidden", !showCustomTag);
+    customTagWrap.classList.toggle("hidden", !showCustomTag);
+  }
+
   async function renderComments() {
     window.HorseyUI.showStatus("comment-status", "正在读取评论...");
 
@@ -297,13 +349,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   function updateHorseView() {
     document.title = "Horse_Archive - " + currentHorse.name;
     document.getElementById("horse-id").textContent = "#" + (currentHorse.display_code || currentHorse.id || horseId);
-    document.getElementById("horse-name").textContent = currentHorse.name || "未命名马匹";
+    document.getElementById("horse-name").textContent = currentHorse.name || "未命名帖子";
     document.getElementById("horse-owner").textContent = currentHorse.owner || "未知";
     const ownerLink = document.getElementById("horse-owner-link");
+    const ownerAvatarLink = document.getElementById("horse-owner-avatar-link");
     if (ownerLink) {
       ownerLink.href = currentHorse.owner_user_id
         ? "profile.html?user_id=" + encodeURIComponent(currentHorse.owner_user_id)
         : "profile.html";
+    }
+    if (ownerAvatarLink) {
+      ownerAvatarLink.href = ownerLink.href;
     }
     document.getElementById("horse-created-at").textContent = currentHorse.created_at || "";
     document.getElementById("horse-like-count").textContent = Number(currentHorse.like_count || 0);
@@ -320,6 +376,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     likeButton.classList.toggle("active", Boolean(currentHorse.liked_by_me));
     likeButton.textContent = currentHorse.liked_by_me ? "取消点赞" : "点赞";
+    pinHorseButton.textContent = currentHorse.is_pinned ? "取消置顶" : "置顶";
+    pinHorseButton.classList.toggle("active", Boolean(currentHorse.is_pinned));
     updateFavoriteButton();
     renderGallery();
 
@@ -348,6 +406,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("horse-edit-file").value = "";
     document.getElementById("horse-edit-description").value = currentHorse.description || "";
     document.getElementById("horse-edit-dna").value = currentHorse.dna || "";
+    editAreaInput.value = currentHorse.post_area === "editor" ? "editor" : "horses";
+    renderEditTagOptions(currentHorse.tag || "");
+    editCustomTagInput.value = "";
+    updateEditAreaFields();
     editMediaPicker.setExisting(getHorseImages());
     window.HorseyUI.hideElement("horse-edit-status");
   }
@@ -364,7 +426,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     dnaPanel.classList.toggle("hidden", isEditing || !hasDna);
     filesPanel.classList.toggle("hidden", isEditing || !filesPanel.dataset.hasFiles);
     commentPanel?.classList.toggle("hidden", isEditing);
-    editHorseButton.textContent = "编辑/删除我的马";
+    editHorseButton.textContent = "编辑/删除";
 
     if (isEditing) {
       fillEditForm();
@@ -434,7 +496,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     currentHorse = await window.HorseyHorses.loadHorseById(horseId);
+    await loadAvailableTags();
     updateHorseView();
+
+    const currentUser = window.HorseyAuth.getCurrentUser();
+    if (currentUser?.role === "admin") {
+      pinHorseButton.classList.remove("hidden");
+    }
 
     if (currentHorse.can_edit) {
       editHorseButton.classList.remove("hidden");
@@ -510,6 +578,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  pinHorseButton.addEventListener("click", async () => {
+    const currentUser = window.HorseyAuth.getCurrentUser();
+
+    if (currentUser?.role !== "admin") {
+      return;
+    }
+
+    try {
+      await window.HorseyApi.adminUpdateHorse(currentHorse.id || horseId, {
+        name: currentHorse.name || "",
+        description: currentHorse.description || "",
+        dna: currentHorse.dna || "",
+        post_area: currentHorse.post_area || "horses",
+        tag: currentHorse.tag || "",
+        image_url: currentHorse.image_url || currentHorse.image || "",
+        image_urls: getHorseImages(),
+        is_pinned: !currentHorse.is_pinned
+      });
+      currentHorse = await window.HorseyHorses.loadHorseById(horseId);
+      updateHorseView();
+      window.HorseyUI.showStatus("detail-status", currentHorse.is_pinned ? "帖子已置顶。" : "已取消置顶。");
+      window.setTimeout(() => window.HorseyUI.hideElement("detail-status"), 1800);
+    } catch (error) {
+      window.HorseyUI.showStatus("detail-status", error.message || "置顶操作失败");
+    }
+  });
+
   editHorseButton.addEventListener("click", () => {
     setEditMode(true);
   });
@@ -518,12 +613,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     setEditMode(false);
   });
 
+  editAreaInput.addEventListener("change", updateEditAreaFields);
+  editTagInput.addEventListener("change", updateEditAreaFields);
+
   editHorseForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const name = document.getElementById("horse-edit-name").value.trim();
     const description = document.getElementById("horse-edit-description").value.trim();
     const dna = document.getElementById("horse-edit-dna").value.trim();
+    const postArea = editAreaInput.value === "editor" ? "editor" : "horses";
+    const selectedTag = editTagInput.value || "";
+    const customTag = editCustomTagInput.value.trim();
+    const tag = postArea === "horses"
+      ? (selectedTag === "__custom__" ? customTag : selectedTag)
+      : "";
     const attachedFile = document.getElementById("horse-edit-file").files[0] || null;
     const mediaItems = editMediaPicker.getItems();
 
@@ -535,7 +639,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (!name || mediaItems.length === 0) {
-      window.HorseyUI.showStatus("horse-edit-status", "请填写马匹名称，并保留至少一张图片或 GIF。");
+      window.HorseyUI.showStatus("horse-edit-status", "请填写帖子标题，并保留至少一张图片或 GIF。");
       return;
     }
 
@@ -547,6 +651,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         name,
         description,
         dna,
+        post_area: postArea,
+        tag,
         image_url: imageUrls[0],
         image_urls: imageUrls
       });
@@ -568,12 +674,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       currentHorse = await window.HorseyHorses.loadHorseById(horseId);
+      await loadAvailableTags();
       currentImageIndex = 0;
       updateHorseView();
       await renderHorseFiles();
       setEditMode(false);
       document.getElementById("horse-detail").scrollIntoView({ block: "start" });
-      window.HorseyUI.showStatus("detail-status", "马匹资料已更新。");
+      window.HorseyUI.showStatus("detail-status", "帖子已更新。");
       window.setTimeout(() => {
         window.HorseyUI.hideElement("detail-status");
       }, 2200);
@@ -583,7 +690,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   deleteHorseButton.addEventListener("click", async () => {
-    if (!confirm("确认删除这匹马？")) return;
+    if (!confirm("确认删除这个帖子？")) return;
 
     try {
       await window.HorseyApi.deleteHorse(horseId);

@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const uploadForm = document.getElementById("horse-upload-form");
   const uploadStatus = "horse-upload-status";
+  const areaInput = document.getElementById("horse-upload-area");
+  const tagField = document.getElementById("horse-upload-tag-field");
+  const tagInput = document.getElementById("horse-upload-tag");
+  const customTagInput = document.getElementById("horse-upload-custom-tag");
   const mediaPicker = window.HorseyMediaPicker.create({
     inputId: "horse-upload-image",
     listId: "horse-upload-preview",
@@ -26,6 +30,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   await renderEmojiBars();
+
+  async function renderTagOptions() {
+    const defaults = ["可爱", "猎奇", "速度"];
+    const tags = new Set(defaults);
+
+    try {
+      const posts = await window.HorseyHorses.loadAllHorses();
+      posts
+        .filter((post) => (post.post_area || "horses") === "horses")
+        .forEach((post) => {
+          const tag = String(post.tag || "").trim();
+          if (tag) tags.add(tag);
+        });
+    } catch (error) {
+      // The create page should still be usable if the public list is temporarily unavailable.
+    }
+
+    tagInput.innerHTML = "";
+    [
+      ["", "不选择标签"],
+      ...Array.from(tags).map((tag) => [tag, tag]),
+      ["__custom__", "自选标签"]
+    ].forEach(([value, label]) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = label;
+      tagInput.appendChild(option);
+    });
+  }
+
+  function updateAreaFields() {
+    const isHorsePost = areaInput.value === "horses";
+    const customTagWrap = customTagInput.closest(".emoji-field-wrap") || customTagInput;
+    const showCustomTag = isHorsePost && tagInput.value === "__custom__";
+    tagField.classList.toggle("hidden", !isHorsePost);
+    customTagInput.classList.toggle("hidden", !showCustomTag);
+    customTagWrap.classList.toggle("hidden", !showCustomTag);
+  }
+
+  await renderTagOptions();
+  updateAreaFields();
+  areaInput.addEventListener("change", updateAreaFields);
+  tagInput.addEventListener("change", updateAreaFields);
 
   function validateAttachedFile(file) {
     const maxBytes = 50 * 1024 * 1024;
@@ -60,6 +107,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const name = document.getElementById("horse-upload-name").value.trim();
     const description = document.getElementById("horse-upload-description").value.trim();
     const dna = document.getElementById("horse-upload-dna").value.trim();
+    const postArea = areaInput.value === "editor" ? "editor" : "horses";
+    const selectedTag = tagInput.value || "";
+    const customTag = customTagInput.value.trim();
+    const tag = postArea === "horses"
+      ? (selectedTag === "__custom__" ? customTag : selectedTag)
+      : "";
     const attachedFile = document.getElementById("horse-upload-file").files[0] || null;
     const mediaItems = mediaPicker.getItems();
 
@@ -71,18 +124,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (!name || mediaItems.length === 0) {
-      window.HorseyUI.showStatus(uploadStatus, "请填写马匹名称，并选择 1 到 5 张图片或 GIF。");
+      window.HorseyUI.showStatus(uploadStatus, "请填写帖子标题，并选择 1 到 5 张图片或 GIF。");
       return;
     }
 
     try {
       const imageUrls = await window.HorseyMediaPicker.uploadItems(mediaItems, uploadStatus);
 
-      window.HorseyUI.showStatus(uploadStatus, "正在保存马匹...");
+      window.HorseyUI.showStatus(uploadStatus, "正在保存帖子...");
       const result = await window.HorseyApi.createHorse({
         name,
         description,
         dna,
+        post_area: postArea,
+        tag,
         image_url: imageUrls[0],
         image_urls: imageUrls
       });
@@ -106,7 +161,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (fileError) {
           window.HorseyUI.showStatus(
             uploadStatus,
-            "马匹已创建，但附加文件上传或保存失败：" + (fileError.message || "未知错误")
+            "帖子已创建，但附加文件上传或保存失败：" + (fileError.message || "未知错误")
           );
           return;
         }

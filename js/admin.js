@@ -46,6 +46,15 @@
     return "<textarea rows='4' data-" + name + "='" + escapeHtml(id) + "'>" + escapeHtml(value || "") + "</textarea>";
   }
 
+  async function mountEmojiPickers(scope = content) {
+    const pickers = Array.from(scope.querySelectorAll("[data-emoji-target]"));
+    await Promise.all(pickers.map((picker) => window.HorseyEmojiPicker.mount(
+      picker,
+      document.getElementById(picker.dataset.emojiTarget),
+      { label: "添加表情" }
+    )));
+  }
+
   function formatFileSize(bytes) {
     const size = Number(bytes || 0);
 
@@ -77,14 +86,14 @@
       ["用户总数", stats.users_total],
       ["正常用户", stats.users_active],
       ["管理员", stats.admins_active],
-      ["马匹总数", stats.horses_total],
-      ["正常马匹", stats.horses_active],
+      ["帖子总数", stats.horses_total],
+      ["正常帖子", stats.horses_active],
       ["评论总数", stats.comments_total],
       ["正常评论", stats.comments_active],
       ["附件总数", stats.media_total],
       ["正常附件", stats.media_active],
       ["附件占用", formatFileSize(stats.media_bytes)],
-      ["马匹点赞", stats.horse_likes],
+      ["帖子点赞", stats.horse_likes],
       ["评论点赞", stats.comment_likes],
       ["日志表情", stats.update_reactions],
       ["收藏总数", stats.favorite_count],
@@ -105,7 +114,7 @@
     const result = await window.HorseyApi.adminList("users");
     const users = result.users || [];
 
-    content.innerHTML = table(["ID", "用户名", "头像 URL", "角色", "马匹", "评论", "收藏", "点赞/表情", "附件", "注册时间", "更新时间", "状态", "操作"], users.map((item) => [
+    content.innerHTML = table(["ID", "用户名", "头像 URL", "角色", "帖子", "评论", "收藏", "点赞/表情", "附件", "注册时间", "状态", "操作"], users.map((item) => [
       "<tr>",
       "<td>" + item.id + "</td>",
       "<td>" + escapeHtml(item.username) + "</td>",
@@ -120,7 +129,6 @@
       "<td>" + Number(item.like_count || 0) + " / " + Number(item.update_reaction_count || 0) + "</td>",
       "<td>" + Number(item.media_asset_count || 0) + "</td>",
       "<td>" + escapeHtml(item.created_at) + "</td>",
-      "<td>" + escapeHtml(item.updated_at) + "</td>",
       "<td>" + (item.deleted_at ? "已删除 " + escapeHtml(item.deleted_at) : "正常") + "</td>",
       "<td class='inline-actions'>",
       "<button class='button button-secondary' data-save-user='" + item.id + "' type='button'>保存</button>",
@@ -154,27 +162,60 @@
     });
   }
 
+  async function renderSettings() {
+    const result = await window.HorseyApi.getSiteSettings();
+    const settings = result.settings || result.data?.settings || {};
+
+    content.innerHTML = [
+      "<form class='admin-form admin-settings-form' id='settings-form'>",
+      "<label class='admin-form-field'>",
+      "<span>首页欢迎标题</span>",
+      "<div class='emoji-picker-anchor' data-emoji-target='settings-hero-title'></div>",
+      "<input id='settings-hero-title' value='" + escapeHtml(settings.home_hero_title || "欢迎来到月见莓の马小屋！！🌈") + "'>",
+      "</label>",
+      "<label class='admin-form-field'>",
+      "<span>首页欢迎说明</span>",
+      "<div class='emoji-picker-anchor' data-emoji-target='settings-hero-text'></div>",
+      "<textarea id='settings-hero-text' rows='5'>" + escapeHtml(settings.home_hero_text || "这里用于归档马匹投稿与编辑器作品。发布内容前请确认图片、说明与附件信息完整，QQ群：1106310306。") + "</textarea>",
+      "</label>",
+      "<button class='button' type='submit'>保存欢迎页面</button>",
+      "</form>"
+    ].join("");
+
+    document.getElementById("settings-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await window.HorseyApi.adminUpdateSettings({
+        home_hero_title: document.getElementById("settings-hero-title").value,
+        home_hero_text: document.getElementById("settings-hero-text").value
+      });
+      setStatus("欢迎页面已保存。");
+    });
+
+    await mountEmojiPickers();
+  }
+
   async function renderHorses() {
     const result = await window.HorseyApi.adminList("horses");
     const horses = result.horses || [];
 
-    content.innerHTML = table(["编号", "内部 ID", "图", "名称", "上传者", "图片数", "点赞", "收藏", "评论", "附件", "图片 URL", "简介", "DNA", "创建时间", "更新时间", "状态", "操作"], horses.map((item) => [
-      "<tr>",
+    content.innerHTML = table(["编号", "图片 / URL", "标题", "区域", "Tag", "置顶", "上传者", "说明", "DNA", "创建时间", "状态", "操作"], horses.map((item) => [
+      "<tr class='admin-compact-row'>",
       "<td>#" + escapeHtml(item.display_code || item.display_number || "") + "</td>",
-      "<td>" + escapeHtml(item.id) + "</td>",
-      "<td>" + (item.image_url ? "<img class='admin-mini-image' src='" + escapeHtml(item.image_url) + "' alt=''>" : "") + "</td>",
-      "<td>" + textInput("horse-name", item.id, item.name) + "</td>",
+      "<td class='admin-media-cell'>" + (item.image_url ? "<img class='admin-mini-image' src='" + escapeHtml(item.image_url) + "' alt=''>" : "") + textInput("horse-image", item.id, item.image_url) + "</td>",
+      "<td><div class='emoji-picker-anchor' data-emoji-target='admin-horse-name-" + escapeHtml(item.id) + "'></div><input id='admin-horse-name-" + escapeHtml(item.id) + "' data-horse-name='" + escapeHtml(item.id) + "' value='" + escapeHtml(item.name || "") + "'></td>",
+      "<td><select data-horse-area='" + escapeHtml(item.id) + "'>",
+      "<option value='horses'" + ((item.post_area || "horses") === "horses" ? " selected" : "") + ">马匹</option>",
+      "<option value='editor'" + (item.post_area === "editor" ? " selected" : "") + ">编辑器</option>",
+      "</select></td>",
+      "<td>" + textInput("horse-tag", item.id, item.tag || "") + "</td>",
+      "<td><select data-horse-pinned='" + escapeHtml(item.id) + "'>",
+      "<option value='0'" + (!item.is_pinned ? " selected" : "") + ">否</option>",
+      "<option value='1'" + (item.is_pinned ? " selected" : "") + ">是</option>",
+      "</select></td>",
       "<td>" + escapeHtml(item.owner || item.owner_user_id) + "</td>",
-      "<td>" + (Array.isArray(item.image_urls) ? item.image_urls.length : 0) + "</td>",
-      "<td>" + Number(item.like_count || 0) + "</td>",
-      "<td>" + Number(item.favorite_count || 0) + "</td>",
-      "<td>" + Number(item.comment_count || 0) + "</td>",
-      "<td>" + Number(item.file_count || 0) + "</td>",
-      "<td>" + textInput("horse-image", item.id, item.image_url) + "</td>",
       "<td>" + textareaInput("horse-description", item.id, item.description) + "</td>",
       "<td>" + textareaInput("horse-dna", item.id, item.dna) + "</td>",
       "<td>" + escapeHtml(item.created_at) + "</td>",
-      "<td>" + escapeHtml(item.updated_at) + "</td>",
       "<td>" + (item.deleted_at ? "已删除 " + escapeHtml(item.deleted_at) : "正常") + "</td>",
       "<td class='inline-actions'>",
       "<button class='button button-secondary' data-save-horse='" + escapeHtml(item.id) + "' type='button'>保存</button>",
@@ -186,21 +227,26 @@
     content.querySelectorAll("[data-save-horse]").forEach((button) => {
       button.addEventListener("click", async () => {
         const id = button.dataset.saveHorse;
-        await window.HorseyApi.updateHorse(id, {
+        await window.HorseyApi.adminUpdateHorse(id, {
           name: content.querySelector("[data-horse-name='" + CSS.escape(id) + "']").value,
+          post_area: content.querySelector("[data-horse-area='" + CSS.escape(id) + "']").value,
+          tag: content.querySelector("[data-horse-tag='" + CSS.escape(id) + "']").value,
+          is_pinned: content.querySelector("[data-horse-pinned='" + CSS.escape(id) + "']").value === "1",
           image_url: content.querySelector("[data-horse-image='" + CSS.escape(id) + "']").value,
           description: content.querySelector("[data-horse-description='" + CSS.escape(id) + "']").value,
           dna: content.querySelector("[data-horse-dna='" + CSS.escape(id) + "']").value
         });
-        setStatus("马匹已保存。");
+        setStatus("帖子已保存。");
       });
     });
+
+    await mountEmojiPickers();
 
     content.querySelectorAll("[data-delete-horse]").forEach((button) => {
       button.addEventListener("click", async () => {
         const id = button.dataset.deleteHorse;
 
-        if (!confirm("确认删除这匹马？")) {
+        if (!confirm("确认删除这个帖子？")) {
           return;
         }
 
@@ -214,7 +260,7 @@
     const result = await window.HorseyApi.adminList("comments");
     const comments = result.comments || [];
 
-    content.innerHTML = table(["ID", "马匹", "回复对象", "用户", "点赞", "内容", "时间", "状态", "操作"], comments.map((item) => [
+    content.innerHTML = table(["ID", "帖子", "回复对象", "用户", "点赞", "内容", "时间", "状态", "操作"], comments.map((item) => [
       "<tr>",
       "<td>" + item.id + "</td>",
       "<td>" + escapeHtml(item.horse_name || item.horse_id) + "<br><span class='admin-muted'>" + escapeHtml(item.horse_id) + "</span></td>",
@@ -282,7 +328,10 @@
         "<option value='1'" + (Number(item.enabled) === 1 ? " selected" : "") + ">是</option>",
         "<option value='0'" + (Number(item.enabled) === 0 ? " selected" : "") + ">否</option>",
         "</select></td>",
-        "<td><button class='button button-secondary' data-save-emoji='" + item.id + "' type='button'>保存</button></td>",
+        "<td class='inline-actions'>",
+        "<button class='button button-secondary' data-save-emoji='" + item.id + "' type='button'>保存</button>",
+        "<button class='button' data-delete-emoji='" + item.id + "' type='button'>删除</button>",
+        "</td>",
         "</tr>"
       ].join("")))
     ].join("");
@@ -314,6 +363,19 @@
         setStatus("Emoji 已保存。");
       });
     });
+
+    content.querySelectorAll("[data-delete-emoji]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.dataset.deleteEmoji;
+
+        if (!confirm("确认隐藏这个 Emoji？")) {
+          return;
+        }
+
+        await window.HorseyApi.adminDeleteEmoji(id);
+        await loadTab("emojis");
+      });
+    });
   }
 
   async function renderUpdates() {
@@ -331,7 +393,7 @@
       "<button class='button' type='submit'>新增</button>",
       "<textarea id='update-content' rows='5' placeholder='更新内容' required></textarea>",
       "</form>",
-      table(["ID", "标题", "版本", "内容", "表情总数", "表情明细", "状态", "创建时间", "更新时间", "操作"], updates.map((item) => [
+      table(["ID", "标题", "版本", "内容", "表情总数", "表情明细", "状态", "创建时间", "操作"], updates.map((item) => [
         "<tr>",
         "<td>" + item.id + "</td>",
         "<td>" + textInput("update-title", item.id, item.title) + "</td>",
@@ -344,8 +406,10 @@
         "<option value='0'" + (!item.is_published ? " selected" : "") + ">隐藏</option>",
         "</select></td>",
         "<td>" + escapeHtml(item.created_at) + "</td>",
-        "<td>" + escapeHtml(item.updated_at) + "</td>",
-        "<td><button class='button button-secondary' data-save-update='" + item.id + "' type='button'>保存</button></td>",
+        "<td class='inline-actions'>",
+        "<button class='button button-secondary' data-save-update='" + item.id + "' type='button'>保存</button>",
+        "<button class='button' data-delete-update='" + item.id + "' type='button'>删除</button>",
+        "</td>",
         "</tr>"
       ].join("")))
     ].join("");
@@ -373,16 +437,28 @@
         setStatus("更新日志已保存。");
       });
     });
+
+    content.querySelectorAll("[data-delete-update]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.dataset.deleteUpdate;
+
+        if (!confirm("确认隐藏这条更新日志？")) {
+          return;
+        }
+
+        await window.HorseyApi.adminDeleteUpdate(id);
+        await loadTab("updates");
+      });
+    });
   }
 
   async function renderMedia() {
     const result = await window.HorseyApi.adminList("media");
     const media = result.media || [];
 
-    content.innerHTML = table(["ID", "标题", "文件名", "类型", "MIME", "大小", "上传者", "关联马匹", "地址", "上传时间", "状态"], media.map((item) => [
+    content.innerHTML = table(["ID", "文件名", "类型", "MIME", "大小", "上传者", "关联帖子", "地址", "上传时间", "状态", "操作"], media.map((item) => [
       "<tr>",
       "<td>" + item.id + "</td>",
-      "<td>" + escapeHtml(item.title) + "</td>",
       "<td>" + escapeHtml(item.file_name) + "</td>",
       "<td>" + escapeHtml(item.file_type) + "</td>",
       "<td>" + escapeHtml(item.mime_type) + "</td>",
@@ -392,8 +468,22 @@
       "<td><a class='button button-secondary' href='" + escapeHtml(item.file_url) + "' target='_blank' rel='noopener' download>打开/下载</a></td>",
       "<td>" + escapeHtml(item.created_at) + "</td>",
       "<td>" + (item.deleted_at ? "已删除 " + escapeHtml(item.deleted_at) : "正常") + "</td>",
+      "<td><button class='button' data-delete-media='" + item.id + "' type='button'>删除</button></td>",
       "</tr>"
     ].join("")));
+
+    content.querySelectorAll("[data-delete-media]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.dataset.deleteMedia;
+
+        if (!confirm("确认删除这个附件？")) {
+          return;
+        }
+
+        await window.HorseyApi.adminDeleteMedia(id);
+        await loadTab("media");
+      });
+    });
   }
 
   async function loadTab(tab) {
@@ -404,6 +494,8 @@
     try {
       if (tab === "overview") {
         await renderOverview();
+      } else if (tab === "settings") {
+        await renderSettings();
       } else if (tab === "users") {
         await renderUsers();
       } else if (tab === "horses") {
