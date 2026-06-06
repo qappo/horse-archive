@@ -215,6 +215,10 @@ window.HorseyApi = {
     return this.request("/emojis", { method: "GET" });
   },
 
+  async getTags() {
+    return this.request("/tags", { method: "GET" });
+  },
+
   async getSiteSettings() {
     return this.request("/settings", { method: "GET" });
   },
@@ -323,6 +327,28 @@ window.HorseyApi = {
 
   async adminDeleteMedia(id) {
     return this.request("/admin/media/" + encodeURIComponent(id), {
+      method: "DELETE"
+    });
+  },
+
+  async adminCreateTag(payload) {
+    return this.request("/admin/tags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async adminUpdateTag(id, payload) {
+    return this.request("/admin/tags/" + encodeURIComponent(id), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async adminDeleteTag(id) {
+    return this.request("/admin/tags/" + encodeURIComponent(id), {
       method: "DELETE"
     });
   },

@@ -11,14 +11,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       kicker: "Archive",
       title: "马匹列表",
       loading: "正在读取马匹帖子...",
-      empty: "还没有马匹帖子。",
+      empty: "还没有发布的马匹。",
       count: "篇"
     },
     editor: {
-      kicker: "Editor",
-      title: "编辑器列表",
-      loading: "正在读取编辑器帖子...",
-      empty: "还没有编辑器帖子。",
+      kicker: "Editor Pack",
+      title: "编辑包列表",
+      loading: "正在读取编辑包帖子...",
+      empty: "还没有发布的编辑包。",
       count: "篇"
     },
     gene: {
@@ -75,8 +75,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tags = new Set(defaults);
 
     posts.forEach((post) => {
-      const tag = String(post.tag || "").trim();
-      if (tag && tag !== "__custom__" && tag !== "自选标签") tags.add(tag);
+      (post.tags || (post.tag ? [post.tag] : [])).forEach((item) => {
+        const tag = String(item || "").trim();
+        if (tag && tag !== "__custom__" && tag !== "自选标签") tags.add(tag);
+      });
     });
 
     return ["全部", ...Array.from(tags)];
@@ -133,7 +135,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTags(areaPosts);
 
     const filteredPosts = areaPosts.filter((post) => (
-      activeArea !== "horses" || activeTag === "全部" || post.tag === activeTag
+      activeArea !== "horses" || activeTag === "全部" || (post.tags || []).includes(activeTag)
     ));
     const sortedPosts = sortPosts(filteredPosts);
 

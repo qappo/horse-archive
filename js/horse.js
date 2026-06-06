@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const cancelReplyButton = document.getElementById("cancel-reply-button");
   const likeButton = document.getElementById("horse-like-button");
   const favoriteButton = document.getElementById("horse-favorite-button");
+  const moreButton = document.getElementById("horse-more-button");
+  const morePopover = document.getElementById("horse-more-popover");
   const pinHorseButton = document.getElementById("horse-pin-button");
   const editHorseButton = document.getElementById("horse-edit-button");
   const deleteHorseButton = document.getElementById("horse-delete-button");
@@ -16,8 +18,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const cancelEditButton = document.getElementById("horse-cancel-edit-button");
   const editAreaInput = document.getElementById("horse-edit-area");
   const editTagField = document.getElementById("horse-edit-tag-field");
-  const editTagInput = document.getElementById("horse-edit-tag");
-  const editCustomTagInput = document.getElementById("horse-edit-custom-tag");
   const galleryPrev = document.getElementById("horse-gallery-prev");
   const galleryNext = document.getElementById("horse-gallery-next");
   const galleryCounter = document.getElementById("horse-gallery-counter");
@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let replyToComment = null;
   let dnaStatusTimer = null;
   let availableTags = ["可爱", "猎奇", "速度"];
+  let editTagPicker = null;
 
   function getAttachedFileType(file) {
     const mime = String(file?.type || "").toLowerCase();
@@ -244,49 +245,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function loadAvailableTags() {
-    const defaults = ["可爱", "猎奇", "速度"];
-    const tags = new Set(defaults);
-
-    try {
-      const posts = await window.HorseyHorses.loadAllHorses();
-      posts
-        .filter((post) => (post.post_area || "horses") === "horses")
-        .forEach((post) => {
-          const tag = String(post.tag || "").trim();
-          if (tag) tags.add(tag);
-        });
-    } catch (error) {
-      tags.add(currentHorse?.tag || "");
-    }
-
-    availableTags = Array.from(tags).filter(Boolean);
-  }
-
-  function renderEditTagOptions(selectedTag) {
-    const tags = new Set(availableTags);
-    if (selectedTag) tags.add(selectedTag);
-
-    editTagInput.innerHTML = "";
-    [
-      ["", "不选择标签"],
-      ...Array.from(tags).map((tag) => [tag, tag]),
-      ["__custom__", "自选标签"]
-    ].forEach(([value, label]) => {
-      const option = document.createElement("option");
-      option.value = value;
-      option.textContent = label;
-      option.selected = value === selectedTag;
-      editTagInput.appendChild(option);
-    });
+    availableTags = await window.HorseyTagPicker.loadAvailableTags();
   }
 
   function updateEditAreaFields() {
     const isHorsePost = editAreaInput.value === "horses";
-    const customTagWrap = editCustomTagInput.closest(".emoji-field-wrap") || editCustomTagInput;
-    const showCustomTag = isHorsePost && editTagInput.value === "__custom__";
     editTagField.classList.toggle("hidden", !isHorsePost);
-    editCustomTagInput.classList.toggle("hidden", !showCustomTag);
-    customTagWrap.classList.toggle("hidden", !showCustomTag);
   }
 
   async function renderComments() {
@@ -343,7 +307,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function updateFavoriteButton() {
     favoriteButton.classList.toggle("active", Boolean(currentHorse?.favorited_by_me));
-    favoriteButton.textContent = currentHorse?.favorited_by_me ? "取消收藏" : "收藏";
+    favoriteButton.title = currentHorse?.favorited_by_me ? "取消收藏" : "收藏";
   }
 
   function updateHorseView() {
@@ -364,6 +328,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("horse-created-at").textContent = currentHorse.created_at || "";
     document.getElementById("horse-like-count").textContent = Number(currentHorse.like_count || 0);
     document.getElementById("horse-description").textContent = currentHorse.description || "暂无简介";
+    const detailTags = document.getElementById("horse-detail-tags");
+    const tags = currentHorse.post_area === "horses" ? (currentHorse.tags || []) : [];
+    detailTags.innerHTML = "";
+    detailTags.classList.toggle("hidden", tags.length === 0);
+    tags.forEach((item) => {
+      const tag = document.createElement("span");
+      tag.className = "horse-detail-tag";
+      tag.textContent = item;
+      detailTags.appendChild(tag);
+    });
     const hasDna = Boolean(String(currentHorse.dna || "").trim());
     const dnaPanel = document.getElementById("dna-panel");
     dnaPanel.classList.toggle("hidden", !hasDna);
@@ -375,7 +349,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     likeButton.classList.toggle("active", Boolean(currentHorse.liked_by_me));
-    likeButton.textContent = currentHorse.liked_by_me ? "取消点赞" : "点赞";
+    likeButton.title = currentHorse.liked_by_me ? "取消点赞" : "点赞";
     pinHorseButton.textContent = currentHorse.is_pinned ? "取消置顶" : "置顶";
     pinHorseButton.classList.toggle("active", Boolean(currentHorse.is_pinned));
     updateFavoriteButton();
@@ -407,8 +381,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("horse-edit-description").value = currentHorse.description || "";
     document.getElementById("horse-edit-dna").value = currentHorse.dna || "";
     editAreaInput.value = currentHorse.post_area === "editor" ? "editor" : "horses";
-    renderEditTagOptions(currentHorse.tag || "");
-    editCustomTagInput.value = "";
+    if (!editTagPicker) {
+      editTagPicker = window.HorseyTagPicker.create({
+        rootId: "horse-edit-tag-picker",
+        inputId: "horse-edit-tags",
+        availableTags
+      });
+    }
+    editTagPicker.setAvailableTags(availableTags);
+    editTagPicker.setTags(currentHorse.tags || currentHorse.tag || []);
     updateEditAreaFields();
     editMediaPicker.setExisting(getHorseImages());
     window.HorseyUI.hideElement("horse-edit-status");
@@ -427,6 +408,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     filesPanel.classList.toggle("hidden", isEditing || !filesPanel.dataset.hasFiles);
     commentPanel?.classList.toggle("hidden", isEditing);
     editHorseButton.textContent = "编辑/删除";
+    morePopover.classList.add("hidden");
 
     if (isEditing) {
       fillEditForm();
@@ -533,6 +515,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   galleryPrev.addEventListener("click", () => moveGallery(-1));
   galleryNext.addEventListener("click", () => moveGallery(1));
+  moreButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    morePopover.classList.toggle("hidden");
+  });
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".horse-more-menu")) {
+      morePopover.classList.add("hidden");
+    }
+  });
   document.querySelector(".horse-detail-media")?.addEventListener("click", (event) => {
     if (!window.matchMedia("(hover: none)").matches) return;
     if (event.target.closest("button")) return;
@@ -591,7 +582,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         description: currentHorse.description || "",
         dna: currentHorse.dna || "",
         post_area: currentHorse.post_area || "horses",
-        tag: currentHorse.tag || "",
+        tags: currentHorse.tags || [],
         image_url: currentHorse.image_url || currentHorse.image || "",
         image_urls: getHorseImages(),
         is_pinned: !currentHorse.is_pinned
@@ -614,7 +605,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   editAreaInput.addEventListener("change", updateEditAreaFields);
-  editTagInput.addEventListener("change", updateEditAreaFields);
 
   editHorseForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -623,11 +613,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const description = document.getElementById("horse-edit-description").value.trim();
     const dna = document.getElementById("horse-edit-dna").value.trim();
     const postArea = editAreaInput.value === "editor" ? "editor" : "horses";
-    const selectedTag = editTagInput.value || "";
-    const customTag = editCustomTagInput.value.trim();
-    const tag = postArea === "horses"
-      ? (selectedTag === "__custom__" ? customTag : selectedTag)
-      : "";
+    const tags = postArea === "horses" ? editTagPicker.getTags() : [];
     const attachedFile = document.getElementById("horse-edit-file").files[0] || null;
     const mediaItems = editMediaPicker.getItems();
 
@@ -652,7 +638,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         description,
         dna,
         post_area: postArea,
-        tag,
+        tags,
         image_url: imageUrls[0],
         image_urls: imageUrls
       });

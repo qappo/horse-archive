@@ -15,12 +15,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   const horseCount = document.getElementById("profile-horses-count");
   const horseStatus = document.getElementById("profile-horses-status");
   const horseGrid = document.getElementById("profile-horse-grid");
+  const areaTabs = Array.from(document.querySelectorAll("[data-profile-area]"));
   let profileUser = null;
+  let allPosts = [];
+  let activeArea = "horses";
 
   window.HorseyFilePicker?.create({
     inputId: "avatar-file",
     label: "选择头像图片，也可以拖到这里"
   });
+
+  window.HorseyEmojiPicker?.mount(
+    document.querySelector("[data-emoji-target='profile-name']"),
+    nameInput,
+    { label: "添加表情" }
+  );
 
   if (!targetUserId) {
     window.location.href = "login.html";
@@ -40,8 +49,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     profileUser = user;
     avatar.src = user.avatar_url || window.HORSEY_CONFIG.placeholderImage;
     title.textContent = user.username || "用户";
-    meta.textContent = "发布 " + Number(user.horse_count || 0) + " 匹马";
-    horseTitle.textContent = isOwnProfile ? "我发布的马" : (user.username || "这个用户") + " 发布的马";
+    meta.textContent = "发布 " + Number(user.horse_count || 0) + " 篇";
+    horseTitle.textContent = isOwnProfile ? "我发布的帖子" : (user.username || "这个用户") + " 发布的帖子";
     document.title = "Horse_Archive - " + (user.username || "个人主页");
 
     if (isOwnProfile) {
@@ -61,28 +70,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderUser(result.user || result.data?.user || result.data || {});
   }
 
-  async function loadHorses() {
+  function renderPosts() {
     horseGrid.innerHTML = "";
-    horseStatus.textContent = "正在读取发布的马...";
-    horseStatus.classList.remove("hidden");
+    areaTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.profileArea === activeArea));
+    const posts = allPosts.filter((post) => (post.post_area || "horses") === activeArea);
+    const areaLabel = activeArea === "editor" ? "编辑包" : "马匹";
 
-    const result = await window.HorseyApi.getUserHorses(targetUserId);
-    const horses = window.HorseyApi
-      .normalizeHorsesResult(result)
-      .map((horse) => window.HorseyHorses.normalizeHorse(horse));
+    horseCount.textContent = "共 " + posts.length + " 篇";
+    meta.textContent = "发布 " + allPosts.length + " 篇";
 
-    horseCount.textContent = "共 " + horses.length + " 匹";
-    meta.textContent = "发布 " + horses.length + " 匹马";
-
-    if (horses.length === 0) {
-      horseStatus.textContent = isOwnProfile ? "你还没有发布马。" : "这个用户还没有发布马。";
+    if (posts.length === 0) {
+      horseStatus.textContent = isOwnProfile ? "你还没有发布" + areaLabel + "。" : "这个用户还没有发布" + areaLabel + "。";
+      horseStatus.classList.remove("hidden");
       return;
     }
 
     horseStatus.classList.add("hidden");
-    horses.forEach((horse) => {
+    posts.forEach((horse) => {
       horseGrid.appendChild(window.HorseyUI.createHorseCard(horse));
     });
+  }
+
+  async function loadHorses() {
+    horseGrid.innerHTML = "";
+    horseStatus.textContent = "正在读取发布的帖子...";
+    horseStatus.classList.remove("hidden");
+
+    const result = await window.HorseyApi.getUserHorses(targetUserId);
+    allPosts = window.HorseyApi
+      .normalizeHorsesResult(result)
+      .map((horse) => window.HorseyHorses.normalizeHorse(horse));
+    renderPosts();
   }
 
   try {
@@ -137,5 +155,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       showStatus(error.message || "资料保存失败");
     }
+  });
+
+  areaTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      activeArea = tab.dataset.profileArea || "horses";
+      renderPosts();
+    });
   });
 });

@@ -31,7 +31,7 @@
           <label class="field-label" for="horse-upload-area">发布区域</label>
           <select class="form-select" id="horse-upload-area">
             <option value="horses" selected>马匹</option>
-            <option value="editor">编辑器</option>
+            <option value="editor">编辑包</option>
           </select>
 
           <label class="field-label" for="horse-upload-name">标题</label>
@@ -50,10 +50,9 @@
           <textarea id="horse-upload-dna" rows="6" placeholder="可以粘贴较长 DNA 数据"></textarea>
 
           <div class="post-tag-field" id="horse-upload-tag-field">
-            <label class="field-label" for="horse-upload-tag">Tag</label>
-            <select class="form-select" id="horse-upload-tag"></select>
-            <div class="emoji-picker-anchor" data-emoji-target="horse-upload-custom-tag"></div>
-            <input class="hidden" id="horse-upload-custom-tag" type="text" maxlength="24" placeholder="输入自选标签">
+            <label class="field-label" for="horse-upload-tags">Tag</label>
+            <input id="horse-upload-tags" type="hidden">
+            <div class="tag-picker" id="horse-upload-tag-picker"></div>
           </div>
 
           <label class="field-label" for="horse-upload-file">附加文件（可选）</label>
@@ -82,6 +81,7 @@
   <script src="js/emoji-picker.js"></script>
   <script src="js/file-picker.js"></script>
   <script src="js/media-picker.js"></script>
+  <script src="js/tag-picker.js"></script>
   <script src="js/upload.js"></script>
 </body>
 </html>

@@ -6,12 +6,17 @@ window.HorseyHorses = {
       ? String(displayNumber).padStart(3, "0")
       : horse.id || "");
     const imageUrls = Array.isArray(horse.image_urls) ? horse.image_urls.filter(Boolean).slice(0, 5) : [];
+    const tags = Array.isArray(horse.tags)
+      ? horse.tags.map((tag) => String(tag || "").trim()).filter(Boolean)
+      : String(horse.tag || "").trim()
+        ? [String(horse.tag || "").trim()]
+        : [];
 
     return {
       id: horse.id || "",
       display_number: displayNumber,
       display_code: displayCode,
-      name: horse.name || "未命名马匹",
+      name: horse.name || "未命名帖子",
       owner: horse.owner || horse.owner_username || horse.username || "未知",
       owner_user_id: horse.owner_user_id || horse.user_id || null,
       owner_avatar_url: horse.owner_avatar_url || horse.avatar_url || "",
@@ -22,7 +27,8 @@ window.HorseyHorses = {
       image_url: imageUrls[0] || horse.image_url || horse.image || "",
       dna: horse.dna || "",
       post_area: horse.post_area || horse.area || "horses",
-      tag: horse.tag || "",
+      tag: tags[0] || "",
+      tags,
       is_pinned: Boolean(horse.is_pinned || horse.pinned),
       like_count: Number(horse.like_count || 0),
       liked_by_me: Boolean(horse.liked_by_me),

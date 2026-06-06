@@ -4,6 +4,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
 
+  Array.from(document.querySelectorAll("[data-emoji-target]")).forEach((picker) => {
+    window.HorseyEmojiPicker?.mount(
+      picker,
+      document.getElementById(picker.dataset.emojiTarget),
+      { label: "添加表情" }
+    );
+  });
+
   function setStatus(text) {
     status.textContent = text;
   }

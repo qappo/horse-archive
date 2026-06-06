@@ -79,6 +79,16 @@
       .join("<br>");
   }
 
+  function formatTags(item) {
+    const tags = Array.isArray(item.tags)
+      ? item.tags
+      : String(item.tag || "").trim()
+        ? [String(item.tag || "").trim()]
+        : [];
+
+    return tags.join(", ");
+  }
+
   async function renderOverview() {
     const result = await window.HorseyApi.adminStats();
     const stats = result.stats || {};
@@ -202,12 +212,12 @@
       "<tr class='admin-compact-row'>",
       "<td>#" + escapeHtml(item.display_code || item.display_number || "") + "</td>",
       "<td class='admin-media-cell'>" + (item.image_url ? "<img class='admin-mini-image' src='" + escapeHtml(item.image_url) + "' alt=''>" : "") + textInput("horse-image", item.id, item.image_url) + "</td>",
-      "<td><div class='emoji-picker-anchor' data-emoji-target='admin-horse-name-" + escapeHtml(item.id) + "'></div><input id='admin-horse-name-" + escapeHtml(item.id) + "' data-horse-name='" + escapeHtml(item.id) + "' value='" + escapeHtml(item.name || "") + "'></td>",
+      "<td><input data-horse-name='" + escapeHtml(item.id) + "' value='" + escapeHtml(item.name || "") + "'></td>",
       "<td><select data-horse-area='" + escapeHtml(item.id) + "'>",
       "<option value='horses'" + ((item.post_area || "horses") === "horses" ? " selected" : "") + ">马匹</option>",
-      "<option value='editor'" + (item.post_area === "editor" ? " selected" : "") + ">编辑器</option>",
+      "<option value='editor'" + (item.post_area === "editor" ? " selected" : "") + ">编辑包</option>",
       "</select></td>",
-      "<td>" + textInput("horse-tag", item.id, item.tag || "") + "</td>",
+      "<td>" + textInput("horse-tag", item.id, formatTags(item)) + "</td>",
       "<td><select data-horse-pinned='" + escapeHtml(item.id) + "'>",
       "<option value='0'" + (!item.is_pinned ? " selected" : "") + ">否</option>",
       "<option value='1'" + (item.is_pinned ? " selected" : "") + ">是</option>",
@@ -230,7 +240,7 @@
         await window.HorseyApi.adminUpdateHorse(id, {
           name: content.querySelector("[data-horse-name='" + CSS.escape(id) + "']").value,
           post_area: content.querySelector("[data-horse-area='" + CSS.escape(id) + "']").value,
-          tag: content.querySelector("[data-horse-tag='" + CSS.escape(id) + "']").value,
+          tags: content.querySelector("[data-horse-tag='" + CSS.escape(id) + "']").value,
           is_pinned: content.querySelector("[data-horse-pinned='" + CSS.escape(id) + "']").value === "1",
           image_url: content.querySelector("[data-horse-image='" + CSS.escape(id) + "']").value,
           description: content.querySelector("[data-horse-description='" + CSS.escape(id) + "']").value,
@@ -239,8 +249,6 @@
         setStatus("帖子已保存。");
       });
     });
-
-    await mountEmojiPickers();
 
     content.querySelectorAll("[data-delete-horse]").forEach((button) => {
       button.addEventListener("click", async () => {
@@ -378,6 +386,68 @@
     });
   }
 
+  async function renderTags() {
+    const result = await window.HorseyApi.adminList("tags");
+    const tags = (result.tags || []).filter((item) => item.id);
+
+    content.innerHTML = [
+      "<form class='admin-form' id='tag-create-form'>",
+      "<input id='tag-name' placeholder='Tag 名称' maxlength='24' required>",
+      "<select id='tag-enabled'>",
+      "<option value='1' selected>启用</option>",
+      "<option value='0'>隐藏</option>",
+      "</select>",
+      "<button class='button' type='submit'>新增 Tag</button>",
+      "</form>",
+      table(["ID", "Tag 名称", "帖子数", "状态", "操作"], tags.map((item) => [
+        "<tr>",
+        "<td>" + escapeHtml(item.id || "") + "</td>",
+        "<td>" + textInput("tag-name", item.id, item.name || "") + "</td>",
+        "<td>" + Number(item.post_count || 0) + "</td>",
+        "<td><select data-tag-enabled='" + item.id + "'><option value='1'" + (item.is_enabled !== false ? " selected" : "") + ">启用</option><option value='0'" + (item.is_enabled === false ? " selected" : "") + ">隐藏</option></select></td>",
+        "<td class='inline-actions'>",
+        "<button class='button button-secondary' data-save-tag='" + item.id + "' type='button'>保存</button>",
+        "<button class='button' data-delete-tag='" + item.id + "' type='button'>删除</button>",
+        "</td>",
+        "</tr>"
+      ].join("")))
+    ].join("");
+
+    document.getElementById("tag-create-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await window.HorseyApi.adminCreateTag({
+        name: document.getElementById("tag-name").value,
+        is_enabled: document.getElementById("tag-enabled").value === "1"
+      });
+      await loadTab("tags");
+    });
+
+    content.querySelectorAll("[data-save-tag]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.dataset.saveTag;
+        await window.HorseyApi.adminUpdateTag(id, {
+          name: content.querySelector("[data-tag-name='" + id + "']").value,
+          is_enabled: content.querySelector("[data-tag-enabled='" + id + "']").value === "1"
+        });
+        setStatus("Tag 已保存。");
+        await loadTab("tags");
+      });
+    });
+
+    content.querySelectorAll("[data-delete-tag]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.dataset.deleteTag;
+
+        if (!confirm("确认删除这个 Tag？它会从已有帖子中移除。")) {
+          return;
+        }
+
+        await window.HorseyApi.adminDeleteTag(id);
+        await loadTab("tags");
+      });
+    });
+  }
+
   async function renderUpdates() {
     const result = await window.HorseyApi.adminList("updates");
     const updates = result.updates || [];
@@ -393,13 +463,12 @@
       "<button class='button' type='submit'>新增</button>",
       "<textarea id='update-content' rows='5' placeholder='更新内容' required></textarea>",
       "</form>",
-      table(["ID", "标题", "版本", "内容", "表情总数", "表情明细", "状态", "创建时间", "操作"], updates.map((item) => [
+      table(["ID", "标题", "版本", "内容", "表情", "状态", "创建时间", "操作"], updates.map((item) => [
         "<tr>",
         "<td>" + item.id + "</td>",
         "<td>" + textInput("update-title", item.id, item.title) + "</td>",
         "<td>" + textInput("update-version", item.id, item.version) + "</td>",
         "<td>" + textareaInput("update-content", item.id, item.content) + "</td>",
-        "<td>" + Number(item.like_count || 0) + "</td>",
         "<td class='admin-text-cell'>" + renderReactionSummary(item.reactions) + "</td>",
         "<td><select data-update-published='" + item.id + "'>",
         "<option value='1'" + (item.is_published ? " selected" : "") + ">发布</option>",
@@ -504,6 +573,8 @@
         await renderComments();
       } else if (tab === "media") {
         await renderMedia();
+      } else if (tab === "tags") {
+        await renderTags();
       } else if (tab === "emojis") {
         await renderEmojis();
       } else if (tab === "updates") {

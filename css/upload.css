@@ -46,6 +46,78 @@
   border-radius: var(--radius-sm);
 }
 
+.tag-picker {
+  display: grid;
+  gap: 12px;
+}
+
+.tag-picker-box {
+  min-height: 58px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-sage-700);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-panel) 82%, var(--color-sage-50));
+}
+
+.tag-picker-selected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-picker-chip,
+.tag-picker-recommend-button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--color-sage-700);
+  color: var(--color-white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.tag-picker-chip:hover,
+.tag-picker-recommend-button:hover,
+.tag-picker-recommend-button.active {
+  background: var(--color-olive);
+}
+
+.tag-picker-input {
+  flex: 1 1 220px;
+  min-width: 180px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.tag-picker-input:focus {
+  outline: none;
+}
+
+.tag-picker-limit {
+  margin-left: auto;
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.tag-picker-recommend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tag-picker-recommend > span {
+  color: var(--color-text);
+  font-weight: 800;
+}
+
 .media-preview-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));

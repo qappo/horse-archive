@@ -33,6 +33,7 @@
 
         <form class="profile-form hidden" id="profile-form">
           <label class="field-label" for="profile-name">名字</label>
+          <div class="emoji-picker-anchor" data-emoji-target="profile-name"></div>
           <input id="profile-name" type="text" minlength="3" maxlength="40" required>
 
           <label class="field-label" for="avatar-file">头像图片</label>
@@ -45,14 +46,18 @@
 
       <section class="section-header">
         <div>
-          <p class="section-kicker">Stable</p>
-          <h2 class="section-title" id="profile-horses-title">发布的马</h2>
+          <p class="section-kicker">Posts</p>
+          <h2 class="section-title" id="profile-horses-title">发布的帖子</h2>
+          <nav class="home-section-tabs compact-tabs" aria-label="发布区域">
+            <button class="home-section-tab active" data-profile-area="horses" type="button">马匹</button>
+            <button class="home-section-tab" data-profile-area="editor" type="button">编辑包</button>
+          </nav>
         </div>
         <p class="section-meta" id="profile-horses-count">加载中...</p>
       </section>
 
       <section>
-        <div class="status-box" id="profile-horses-status">正在读取发布的马...</div>
+        <div class="status-box" id="profile-horses-status">正在读取发布的帖子...</div>
         <div class="horse-grid" id="profile-horse-grid"></div>
       </section>
     </main>
@@ -66,6 +71,7 @@
   <script src="js/auth.js"></script>
   <script src="js/horses.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/emoji-picker.js"></script>
   <script src="js/file-picker.js"></script>
   <script src="js/profile.js"></script>
 </body>

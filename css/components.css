@@ -142,7 +142,6 @@
   display: inline-flex;
   align-items: center;
   min-height: 26px;
-  margin-top: 10px;
   padding: 0 10px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -150,6 +149,13 @@
   color: var(--color-sage-700);
   font-size: 0.84rem;
   font-weight: 800;
+}
+
+.horse-card-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 .horse-owner-link {
@@ -168,6 +174,39 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.compact-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.home-section-tab {
+  min-height: 54px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-panel);
+  color: var(--color-brown);
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.home-section-tab:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-sage-500);
+}
+
+.home-section-tab.active {
+  background: var(--color-sage-700);
+  color: var(--color-white);
+}
+
+.compact-tabs .home-section-tab {
+  min-height: 38px;
+  padding: 0 14px;
 }
 
 .icon-button {

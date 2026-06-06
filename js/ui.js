@@ -9,7 +9,7 @@ window.HorseyUI = {
 
     const image = document.createElement("img");
     image.src = horse.image || window.HORSEY_CONFIG.placeholderImage;
-    image.alt = horse.name ? horse.name + " 的图片" : "马匹图片";
+    image.alt = horse.name ? horse.name + " 的图片" : "帖子图片";
     image.addEventListener("error", () => {
       image.src = window.HORSEY_CONFIG.placeholderImage;
     });
@@ -23,19 +23,26 @@ window.HorseyUI = {
 
     const name = document.createElement("h3");
     name.className = "horse-card-name";
-    name.textContent = horse.name || "未命名马匹";
+    name.textContent = horse.name || "未命名帖子";
 
     const meta = document.createElement("p");
     meta.className = "horse-card-meta";
     meta.textContent = "By " + (horse.owner || "未知") + " · ♥ " + Number(horse.like_count || 0);
 
-    if (horse.post_area === "horses" && horse.tag) {
-      const tag = document.createElement("p");
-      tag.className = "horse-card-tag";
-      tag.textContent = horse.tag;
+    const tags = Array.isArray(horse.tags) ? horse.tags : (horse.tag ? [horse.tag] : []);
+
+    if (horse.post_area === "horses" && tags.length > 0) {
+      const tagWrap = document.createElement("div");
+      tagWrap.className = "horse-card-tags";
+      tags.forEach((item) => {
+        const tag = document.createElement("span");
+        tag.className = "horse-card-tag";
+        tag.textContent = item;
+        tagWrap.appendChild(tag);
+      });
       body.appendChild(id);
       body.appendChild(name);
-      body.appendChild(tag);
+      body.appendChild(tagWrap);
       body.appendChild(meta);
     } else {
       body.appendChild(id);
